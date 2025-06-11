@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puissance 4</title>
+    <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+    <script>
+        const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+            cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
+            forceTLS: true
+        });
+
+        const channel = pusher.subscribe('game-channel');
+        channel.bind('App\\Events\\GameUpdatedEvent', function(data) {
+            location.reload(); // Recharge la page dès qu’un coup est joué
+        });
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;

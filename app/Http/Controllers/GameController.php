@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Events\GameUpdatedEvent;
 
 class GameController extends Controller
 {
@@ -100,9 +101,11 @@ class GameController extends Controller
 
                 if ($this->checkWin($grid, $turn)) {
                     session(['grid' => $grid, 'winner' => $turn]);
+                    broadcast(new GameUpdatedEvent($grid, $turn, $turn))->toOthers();
                 } else {
                     $nextTurn = $turn === 'R' ? 'J' : 'R';
                     session(['grid' => $grid, 'turn' => $nextTurn]);
+                    broadcast(new GameUpdatedEvent($grid, $nextTurn, null))->toOthers();
                 }
 
                 break;

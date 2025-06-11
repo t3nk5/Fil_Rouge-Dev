@@ -1,0 +1,27 @@
+composer require pusher/pusher-php-server
+npm install --save laravel-echo pusher-js
+
+ajouter dans le .env
+
+# Configuration Pusher pour WebSocket
+PUSHER_APP_ID=2006625
+PUSHER_APP_KEY=929d107817fec3c3543c
+PUSHER_APP_SECRET=y1572a6edcdfe5c783478
+PUSHER_APP_CLUSTER=eu
+
+# Laravel Echo
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+
+créer un compte sur https://dashboard.pusher.com
+
+créer une app
+nom Fil_Rouge-Dev
+cluster non
+environnement back laravel
+
+PUSHER_APP_ID=2006625
+PUSHER_APP_KEY=929d107817fec3c3543c
+PUSHER_APP_SECRET=1572a6edcdfe5c783478
+
