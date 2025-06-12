@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('queues', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->foreignIdFor(Session::class);
             $table->timestamp('entry_time');
         });
