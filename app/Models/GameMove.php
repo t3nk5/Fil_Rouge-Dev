@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GameMove extends Model
 {
+    public $timestamps = false;
     public $incrementing = false;
     protected $keyType = 'string';
 

@@ -9,27 +9,31 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 
 class GameUpdatedEvent implements ShouldBroadcast
     {
-    use InteractsWithSockets, SerializesModels;
 
-    public $grid;
-    public $turn;
-    public $winner;
+    public string $gameId;
+    public array $grid;
+    public ?string $currentPlayerId;
+    public ?string $winnerId;
 
-    public function __construct($grid, $turn, $winner)
-        {
+    public function __construct(string $gameId, array $grid, ?string $currentPlayerId, ?string $winnerId)
+    {
+        $this->gameId = $gameId;
         $this->grid = $grid;
-        $this->turn = $turn;
-        $this->winner = $winner;
+        $this->currentPlayerId = $currentPlayerId;
+        $this->winnerId = $winnerId;
     }
 
-    public function broadcastOn()
+    public function broadcastOn(): array
     {
-        return new Channel('game-channel');
+        return ['game-channel'];
     }
 
-    public function broadcastAs()
+    public function broadcastAs(): string
     {
-    return 'game-updated';
+        return 'GameUpdatedEvent';
     }
-    
+
+
     }
+
+

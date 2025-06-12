@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Queue extends Model
 {
+
     public $timestamps = false;
 
     protected $fillable = ['session_id', 'entry_time'];

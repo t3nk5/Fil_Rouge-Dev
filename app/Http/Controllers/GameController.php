@@ -2,8 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Game;
+use App\Models\GameMove;
+use App\Models\Queue;
 use Illuminate\Http\Request;
 use App\Events\GameUpdatedEvent;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+
 
 class GameController extends Controller
 {
@@ -79,7 +86,46 @@ class GameController extends Controller
 
     public function waiting()
     {
-        return view('waiting');
+        $userId = Auth::id();
+
+        $alreadyInQueue = Queue::where('session_id', $userId)->exists();
+
+        if (!$alreadyInQueue) {
+            Queue::create([
+                'session_id' => $userId,
+                'entry_time' => now(),
+            ]);
+        }
+
+
+        $waitingPlayers = Queue::orderBy('entry_time')->take(2)->get();
+
+        if ($waitingPlayers->count() >= 2) {
+            $player1 = $waitingPlayers[0];
+            $player2 = $waitingPlayers[1];
+
+
+            $game = Game::create([
+                'player1_id' => $player1->session_id,
+                'player2_id' => $player2->session_id,
+                'status' => 'active',
+            ]);
+
+
+            Queue::whereIn('session_id', [$player1->session_id, $player2->session_id])->delete();
+
+
+            broadcast(new \App\Events\GameStartedEvent($game))->toOthers();
+
+            if ($userId == $player1->session_id || $userId == $player2->session_id) {
+                return redirect('/game/' . $game->id);
+            }
+        }
+
+
+        $allWaitingPlayers = Queue::orderBy('entry_time')->get();
+
+        return view('waiting', ['waitingPlayers' => $allWaitingPlayers]);
     }
 
     public function game()
@@ -92,9 +138,16 @@ class GameController extends Controller
         $grid = session('grid') ?? array_fill(0, $this->rows, array_fill(0, $this->columns, null));
         $turn = session('turn') ?? 'R';
 
+        $users = User::all();
+
+
+        $game = Game::first();
+
         return view('test', [
             'grid' => $grid,
-            'turn' => $turn
+            'turn' => $turn,
+            'users' => $users,
+            'game' => $game, // <- ajoute ça pour que la vue ait la variable $game
         ]);
     }
 
@@ -105,32 +158,70 @@ class GameController extends Controller
         return redirect('/');
     }
 
-    public function play(Request $request, int $column)
+    public function play(Request $request, string $gameId, int $column)
     {
-        $grid = session('grid');
-        $turn = session('turn');
-        $winner = session('winner');
+        $user = Auth::user();
+        $game = Game::with('moves')->findOrFail($gameId);
 
-        if ($winner) return redirect('/');
+        if (!in_array($user->id, [$game->player1_id, $game->player2_id])) {
+            abort(403, 'Vous ne participez pas à cette partie.');
+        }
 
-        for ($row = $this->rows - 1; $row >= 0; $row--) {
-            if ($grid[$row][$column] === null) {
-                $grid[$row][$column] = $turn;
+        $lastMove = $game->moves->sortByDesc('turn')->first();
+        $expectedPlayer = !$lastMove
+            ? $game->player1_id
+            : ($lastMove->player_id === $game->player1_id ? $game->player2_id : $game->player1_id);
 
-                if ($this->checkWin($grid, $turn)) {
-                    session(['grid' => $grid, 'winner' => $turn]);
-                    broadcast(new GameUpdatedEvent($grid, $turn, $turn))->toOthers();
-                } else {
-                    $nextTurn = $turn === 'R' ? 'J' : 'R';
-                    session(['grid' => $grid, 'turn' => $nextTurn]);
-                    broadcast(new GameUpdatedEvent($grid, $nextTurn, null))->toOthers();
+        if ($user->id !== $expectedPlayer) {
+            return response()->json(['error' => "Ce n'est pas votre tour."], 403);
+        }
+
+
+        $grid = array_fill(0, 6, array_fill(0, 7, null));
+        foreach ($game->moves as $move) {
+            for ($row = 5; $row >= 0; $row--) {
+                if ($grid[$row][$move->column] === null) {
+                    $grid[$row][$move->column] = $move->player_id;
+                    break;
                 }
+            }
+        }
 
+
+        $topCell = $grid[0][$column];
+        if ($topCell !== null) {
+            return response()->json(['error' => "Colonne pleine"], 400);
+        }
+
+        for ($row = 5; $row >= 0; $row--) {
+            if ($grid[$row][$column] === null) {
+                $grid[$row][$column] = $user->id;
                 break;
             }
         }
 
-        return redirect('/');
+        $move = GameMove::create([
+            'id' => Str::uuid(),
+            'game_id' => $game->id,
+            'player_id' => $user->id,
+            'turn' => $lastMove ? $lastMove->turn + 1 : 1,
+            'column' => $column,
+        ]);
+
+        $winnerId = $this->checkWin($grid, $user->id) ? $user->id : null;
+
+        if ($winnerId) {
+            $game->status = 'finished';
+            $game->save();
+        }
+
+        broadcast(new GameUpdatedEvent($grid, $user->id, $winnerId))->toOthers();
+
+        return response()->json([
+            'grid' => $grid,
+            'winner' => $winnerId,
+            'nextTurn' => $winnerId ? null : ($expectedPlayer === $game->player1_id ? $game->player2_id : $game->player1_id)
+        ]);
     }
 
 

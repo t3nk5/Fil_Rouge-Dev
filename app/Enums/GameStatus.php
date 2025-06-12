@@ -1,7 +1,5 @@
-﻿<?php
-
+<?php
 namespace App\Enums;
-
 enum GameStatus: int
 {
     case Draw = -1;

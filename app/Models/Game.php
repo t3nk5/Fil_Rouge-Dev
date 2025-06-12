@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Game extends Model
 {
+    public $timestamps = false;
     public $incrementing = false;
     protected $keyType = 'string';
 

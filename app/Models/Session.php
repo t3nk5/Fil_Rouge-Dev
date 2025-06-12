@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Session extends Model
 {
+    public $timestamps = false;
     protected $keyType = 'string';
     public $incrementing = false;
 
