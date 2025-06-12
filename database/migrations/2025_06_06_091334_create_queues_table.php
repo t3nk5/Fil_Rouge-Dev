@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('queues', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Session::class);
-            $table->timestamp('entry_time');
+            $table->timestamp('entry_time')->useCurrent();
         });
     }
 
