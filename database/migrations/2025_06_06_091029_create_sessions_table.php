@@ -14,9 +14,11 @@ return new class extends Migration
     {
         Schema::create('sessions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(User::class);
-            $table->string('ip_address');
-            $table->timestamp('created_at')->nullable();
+            $table->foreignIdFor(User::class)->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
         });
     }
 
