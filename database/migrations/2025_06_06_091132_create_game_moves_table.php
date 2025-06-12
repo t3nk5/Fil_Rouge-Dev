@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Game;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,8 +14,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('game_moves', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->uuid('id')->primary();
+            $table->foreignIdFor(Game::class);
+            $table->integer('turn');
+            $table->foreignIdFor(User::class, 'player_id');
+            $table->tinyInteger('column');
         });
     }
 
