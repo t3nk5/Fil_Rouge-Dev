@@ -67,14 +67,32 @@ class GameController extends Controller
         return false;
     }
 
+    public function home()
+    {
+        return view('index');
+    }
 
+    public function login()
+    {
+        return view('login');
+    }
+
+    public function waiting()
+    {
+        return view('waiting');
+    }
+
+    public function game()
+    {
+        return view('game');
+    }
 
     public function showGame()
     {
         $grid = session('grid') ?? array_fill(0, $this->rows, array_fill(0, $this->columns, null));
         $turn = session('turn') ?? 'R';
 
-        return view('game', [
+        return view('test', [
             'grid' => $grid,
             'turn' => $turn
         ]);
