@@ -7,7 +7,7 @@
 @endphp
 
 <x-layout title="Accueil - Puissance 4" :css="asset('css/queue/style.css')">
-    <x-header :user="$user"/>
+    <x-header/>
 
     <main class="main-content">
         <div class="waiting-container">
@@ -19,7 +19,6 @@
                 </div>
             </div>
 
-            <!-- Status -->
             <div class="status-section">
                 <h1 class="status-title">Recherche en cours<span class="dots"></span></h1>
                 <p class="status-message" id="status-message">
@@ -38,22 +37,19 @@
                 </div>
             </div>
 
-            <!-- Progress -->
             <div class="progress-section">
                 <div class="progress-bar">
                     <div class="progress-fill"></div>
                 </div>
-                <div class="progress-text">Recherche d'un adversaire de niveau similaire...</div>
             </div>
 
-            <!-- Players (si applicable) -->
             <div class="players-section" id="players-section">
                 <h3 class="players-title">Joueurs dans la partie</h3>
                 <div class="players-list">
                     <div id="player-1" class="player-item">
                         <div class="player-info">
-                            <div class="player-avatar">{{ $user->username[0]  }}</div>
-                            <span class="player-name" id="current-player">{{ $user->username }}</span>
+                            <div class="player-avatar">{{ Auth::user()->name[0]  }}</div>
+                            <span class="player-name" id="current-player">{{ Auth::user()->name }}</span>
                         </div>
                         <span class="player-status waiting">En attente</span>
                     </div>

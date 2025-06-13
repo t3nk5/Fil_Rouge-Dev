@@ -7,24 +7,21 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController2;
 
 Route::get('/', function () {
-    return view('index', ['user' => (object)[
-        'username' => 'Joueur123',
-        'gamesPlayed' => 15,
-        'gamesWon' => 9,
-        'winRate' => 60]
-    ]);
+    return view('index');
 })->name('index');
 
-Route::get('/queue', [QueueController::class, 'index'])->name('queue');
+Route::get('/queue', [QueueController::class, 'index'])->name('queue')->middleware('auth');
 
 Route::prefix('/game')->name('game.')->controller(GameController::class)->group(function () {
-    Route::get('/{id}', 'index')->name('index');
+    Route::get('/{id}', 'index')->name('index')->middleware('auth');
 });
 
 Route::prefix('/auth')->name('auth.')->controller(AuthController::class)->group(function () {
-    Route::get('/login', 'login')->name('login');
-    Route::get('/logout', 'logout')->name('logout');
+    Route::get('/login', 'loginPage')->name('login')->middleware('guest');
+    Route::post('/login', 'login')->name('login')->middleware('guest');
+    Route::delete('/logout', 'logout')->name('logout')->middleware('auth');
 });
+
 
 //
 
