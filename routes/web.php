@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\QueueController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,13 @@ Route::get('/queue', [QueueController::class, 'index'])->name('queue');
 Route::prefix('/game')->name('game.')->controller(GameController::class)->group(function () {
     Route::get('/{id}', 'index')->name('index');
 });
+
+Route::prefix('/auth')->name('auth.')->controller(AuthController::class)->group(function () {
+    Route::get('/login', 'login')->name('login');
+    Route::get('/logout', 'logout')->name('logout');
+});
+
+//
 
 Route::prefix('/test')->name('test')->group(function () {
     Route::get('/home', [GameController2::class, 'showGame']);
