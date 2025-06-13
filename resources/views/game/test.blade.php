@@ -81,7 +81,7 @@
     @endforeach
 </table>
 
-<form action="{{ route('restart')  }}" method="GET">
+<form action="{{ route('test.restart')  }}" method="GET">
     <button type="submit">🔄 Rejouer</button>
 </form>
 
