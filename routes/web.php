@@ -67,5 +67,10 @@ Route::get('/', [GameController::class, 'home'])->name('index');
 Route::get('/waiting', [GameController::class, 'waiting'])->middleware('auth')->name('waiting');
 
 
+Route::post('/queue/leave', [GameController::class, 'leaveQueue'])->name('queue.leave')->middleware('auth');
+
+
+
+
 
 Route::get('/game', [GameController::class, 'game'])->name('game');

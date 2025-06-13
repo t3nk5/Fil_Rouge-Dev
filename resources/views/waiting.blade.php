@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>En attente - Puissance 4</title>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="{{ asset('css/waiting.css') }}">
 </head>
 <body>
@@ -92,7 +95,35 @@
         <li>{{ $player->session_id }}</li>
     @endforeach
 </ul>
+<form method="POST" action="{{ route('queue.leave') }}">
+    @csrf
+    <button type="submit" style="padding: 10px 20px; margin-top: 20px;">Quitter la file d’attente</button>
+</form>
 
+<script>
+    window.addEventListener('beforeunload', function (e) {
+        navigator.sendBeacon('/queue/leave');
+    });
+</script>
+
+@if(session('redirect_to_game'))
+    <script>
+        window.location.href = "{{ session('redirect_to_game') }}";
+    </script>
+@endif
+
+<script>
+    setTimeout(() => {
+        window.location.reload();
+    }, 3000);
+</script>
+<script>
+    window.onpageshow = function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    };
+</script>
 
 <script>
     let startTime = Date.now();
@@ -121,5 +152,7 @@
         }, 2000);
     }
 </script>
+
+
 </body>
 </html>

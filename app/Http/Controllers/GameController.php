@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\GameStatus;
 use App\Models\Game;
 use App\Models\GameMove;
 use App\Models\Queue;
@@ -10,6 +11,7 @@ use App\Events\GameUpdatedEvent;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 
 class GameController extends Controller
@@ -88,8 +90,18 @@ class GameController extends Controller
     {
         $userId = Auth::id();
 
-        $alreadyInQueue = Queue::where('session_id', $userId)->exists();
+        // Redirige si l'utilisateur a déjà un jeu actif
+        $existingGame = Game::where(function ($query) use ($userId) {
+            $query->where('player1_id', $userId)
+                ->orWhere('player2_id', $userId);
+        })->where('status', GameStatus::InProgress->value)->first();
 
+        if ($existingGame) {
+            return redirect('/game/' . $existingGame->id);
+        }
+
+        // Ajout en file d'attente si non présent
+        $alreadyInQueue = Queue::where('session_id', $userId)->exists();
         if (!$alreadyInQueue) {
             Queue::create([
                 'session_id' => $userId,
@@ -97,35 +109,44 @@ class GameController extends Controller
             ]);
         }
 
-
+        // Récupère les 2 premiers joueurs en attente
         $waitingPlayers = Queue::orderBy('entry_time')->take(2)->get();
 
-        if ($waitingPlayers->count() >= 2) {
+        if ($waitingPlayers->count() === 2) {
             $player1 = $waitingPlayers[0];
             $player2 = $waitingPlayers[1];
-
 
             $game = Game::create([
                 'player1_id' => $player1->session_id,
                 'player2_id' => $player2->session_id,
-                'status' => 'active',
+                'status' => GameStatus::InProgress->value,
             ]);
-
 
             Queue::whereIn('session_id', [$player1->session_id, $player2->session_id])->delete();
 
-
             broadcast(new \App\Events\GameStartedEvent($game))->toOthers();
 
-            if ($userId == $player1->session_id || $userId == $player2->session_id) {
-                return redirect('/game/' . $game->id);
+            // ⚠️ Redirige côté client via session (pas ici directement)
+            if (in_array($userId, [$player1->session_id, $player2->session_id])) {
+                return redirect()->route('waiting')->with('redirect_to_game', '/game/' . $game->id);
             }
         }
 
-
+        // Affiche la vue d'attente avec liste et redirection JS
         $allWaitingPlayers = Queue::orderBy('entry_time')->get();
 
-        return view('waiting', ['waitingPlayers' => $allWaitingPlayers]);
+        return view('waiting', [
+            'waitingPlayers' => $allWaitingPlayers,
+        ]);
+    }
+
+    public function leaveQueue(Request $request)
+    {
+        $userId = Auth::id();
+
+        Queue::where('session_id', $userId)->delete();
+
+        return redirect('/');
     }
 
     public function game()
