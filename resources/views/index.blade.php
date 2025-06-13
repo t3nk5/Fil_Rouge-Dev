@@ -1,5 +1,5 @@
 <x-layout title="Accueil - Puissance 4" :css="asset('css/style.css')">
-    <x-header :user="$user"/>
+    <x-header/>
 
     <main class="main-content">
         <div class="hero-section">
@@ -59,9 +59,9 @@
         // Charger les statistiques
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
-                animateCounter('games-played', {{ $user->gamesPlayed }});
-                animateCounter('games-won', {{ $user->gamesWon }});
-                animateCounter('win-rate', {{ $user->winRate }}, '%');
+                animateCounter('games-played', {{ /*$user->gamesPlayed*/ 15 }});
+                animateCounter('games-won', {{ /*$user->gamesWon*/ 9 }});
+                animateCounter('win-rate', {{ /*$user->winRate*/ 60 }}, '%');
             }, 500);
         });
 
@@ -96,32 +96,6 @@
                 playBtn.classList.remove('loading');
                 playIcon.textContent = '▶';
             }, 500);
-        }
-
-        // Déconnexion
-        function logout() {
-            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-                // Simulation - remplacez par votre logique Laravel
-                window.location.href = '/logout';
-
-                /* Vraie implémentation Laravel :
-                fetch('/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = '/login';
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la déconnexion:', error);
-                });
-                */
-            }
         }
 
         // Gestion des raccourcis clavier

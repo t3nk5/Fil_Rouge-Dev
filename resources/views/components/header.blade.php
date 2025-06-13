@@ -5,13 +5,21 @@
     </a>
 
     <div class="user-info">
-        <div>
-            <span class="welcome-text">Bienvenue,</span>
-            <span class="username" id="username">{{ $user->username }}</span>
-        </div>
-        <button class="logout-btn" onclick="logout()">
-            <span>🚪</span>
-            Déconnexion
-        </button>
+        @auth
+            <div>
+                <span class="welcome-text">Bienvenue,</span>
+                <span class="username" id="username">{{ Auth::user()->name }}</span>
+            </div>
+        <form action="{{ route('auth.logout') }}" method="post">
+            @method('delete')
+            @csrf
+            <button class="logout-btn" >Déconnexion</button>
+        </form>
+        @endauth
+        @guest
+            <a href="{{ route('auth.login') }}" class="logout-btn">
+                Connexion
+            </a>
+        @endguest
     </div>
 </header>

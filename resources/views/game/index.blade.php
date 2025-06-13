@@ -1,5 +1,5 @@
 <x-layout title="Jeu - Puissance 4" :css="asset('css/game/style.css')">
-    <x-header :user="$user"/>
+    <x-header/>
 
     <main class="main-content">
         <div class="game-info">
