@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('game_moves', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(Game::class);
+            $table->foreignIdFor(Game::class)->constrained()->onDelete('cascade');
             $table->integer('turn');
             $table->tinyInteger('player_index');
             $table->tinyInteger('column');

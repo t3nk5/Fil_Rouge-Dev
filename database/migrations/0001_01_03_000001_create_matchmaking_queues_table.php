@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('matchmaking_queues', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Session::class)->unique();
+            $table->foreignIdFor(Session::class)->unique()->constrained()->onDelete('cascade');
             $table->timestamp('entry_time')->useCurrent();
             $table->tinyInteger('status')->default(0);
         });
