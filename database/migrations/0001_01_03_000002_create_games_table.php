@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Game;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,12 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('game_moves', function (Blueprint $table) {
+        Schema::create('games', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(Game::class);
-            $table->integer('turn');
-            $table->foreignIdFor(User::class, 'player_id');
-            $table->tinyInteger('column');
+            $table->tinyInteger('status')->default(0);
         });
     }
 
@@ -27,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('game_moves');
+        Schema::dropIfExists('games');
     }
 };

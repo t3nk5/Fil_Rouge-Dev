@@ -12,10 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('queues', function (Blueprint $table) {
+        Schema::create('matchmaking_queues', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Session::class);
+            $table->foreignIdFor(Session::class)->unique();
             $table->timestamp('entry_time')->useCurrent();
+            $table->tinyInteger('status')->default(0);
         });
     }
 
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('queues');
+        Schema::dropIfExists('matchmaking_queues');
     }
 };
