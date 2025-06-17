@@ -91,7 +91,7 @@
             playIcon.textContent = '⟳';
 
             setTimeout(() => {
-                window.location.href = '{{ route('queue') }}';
+                window.location.href = '{{ route('queue.index') }}';
 
                 playBtn.classList.remove('loading');
                 playIcon.textContent = '▶';

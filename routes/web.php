@@ -8,7 +8,9 @@ use App\Http\Controllers\GameController2;
 
 Route::get('/', function () { return view('index'); })->name('index');
 
-Route::get('/queue', [QueueController::class, 'index'])->name('queue')->middleware('auth');
+Route::prefix('/queue')->name('queue.')->controller(QueueController::class)->group(function () {
+    Route::get('/', 'index')->name('index')->middleware('auth');
+});
 
 Route::prefix('/game')->name('game.')->controller(GameController::class)->group(function () {
     Route::get('/{id}', 'index')->name('index')->middleware('auth');
