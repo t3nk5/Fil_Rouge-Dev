@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Str;
@@ -18,8 +19,8 @@ class User extends Authenticatable
         parent::boot();
 
         static::creating(function ($model) {
-            if (! $model->id) {
-                $model->id = (string) Str::uuid();
+            if (!$model->id) {
+                $model->id = (string)Str::uuid();
             }
         });
     }
@@ -40,16 +41,23 @@ class User extends Authenticatable
 
     public function session(): HasOne
     {
-        return $this->hasOne(Session::class);
+        return $this->hasOne(Session::class, 'user_id');
     }
 
-    public function gamesAsPlayer1(): HasMany
+    public function queue(): HasOne
     {
-        return $this->hasMany(Game::class, 'player1_id');
+        return $this->hasOne(MatchmakingQueue::class);
     }
 
-    public function gamesAsPlayer2(): HasMany
+    public function games(): HasManyThrough
     {
-        return $this->hasMany(Game::class, 'player2_id');
+        return $this->hasManyThrough(
+            Game::class,
+            GamePlayer::class,
+            'user_id',
+            'id',
+            'id',
+            'game_id'
+        );
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\GameStatus;
+use App\Enums\PlayerIndex;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,37 +20,55 @@ class Game extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            if (! $model->id) {
-                $model->id = (string) Str::uuid();
+            if (!$model->id) {
+                $model->id = (string)Str::uuid();
             }
         });
     }
 
     protected $fillable = [
-        'player1_id',
-        'player2_id',
         'status',
     ];
 
     protected $casts = [
         'id' => 'string',
-        'player1_id' => 'string',
-        'player2_id' => 'string',
         'status' => GameStatus::class,
     ];
 
-    public function player1(): BelongsTo
+    public function players(): HasMany
     {
-        return $this->belongsTo(User::class, 'player1_id');
+        return $this->hasMany(GamePlayer::class);
     }
 
-    public function player2(): BelongsTo
+    public function player(PlayerIndex $playerIndex): ?GamePlayer
     {
-        return $this->belongsTo(User::class, 'player2_id');
+        return $this->players()
+            ->where('player_index', $playerIndex)
+            ->first();
     }
 
     public function moves(): HasMany
     {
         return $this->hasMany(GameMove::class);
     }
+
+    public function hasPlace(): bool
+    {
+        return $this->status == GameStatus::InInit && $this->players()->count() < 2;
+    }
+
+    public function getNewPlayerIndex(): ?PlayerIndex
+    {
+        if (!$this->player(PlayerIndex::Player1)) return PlayerIndex::Player1;
+        if (!$this->player(PlayerIndex::Player2)) return PlayerIndex::Player2;
+        return null;
+    }
+
+    public static function firstWithPlaceOrCreate(): Game
+    {
+        $game = self::all()->first(fn(Game $g) => $g->hasPlace());
+
+        return $game ?? self::create();
+    }
+
 }

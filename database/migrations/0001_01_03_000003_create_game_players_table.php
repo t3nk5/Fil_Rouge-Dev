@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Game;
+use App\Models\MatchmakingQueue;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,9 +15,19 @@ return new class extends Migration {
     {
         Schema::create('game_players', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignIdFor(Game::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Game::class)
+                ->constrained()
+                ->onDelete('cascade');
             $table->tinyInteger('player_index');
-            $table->foreignIdFor(User::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignIdFor(User::class)
+                ->nullable()
+                ->constrained()
+                ->onDelete('set null');
+            $table->foreignIdFor(MatchmakingQueue::class)
+                ->nullable()
+                ->unique()
+                ->constrained()
+                ->onDelete('set null');
         });
     }
 

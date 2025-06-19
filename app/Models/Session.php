@@ -40,9 +40,4 @@ class Session extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    public function queue(): HasOne
-    {
-        return $this->hasOne(Queue::class);
-    }
 }

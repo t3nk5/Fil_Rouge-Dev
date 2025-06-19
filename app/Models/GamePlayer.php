@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
-class GameMove extends Model
+class GamePlayer extends Model
 {
     public $timestamps = false;
     public $incrementing = false;
@@ -18,34 +18,47 @@ class GameMove extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            if (! $model->id) {
-                $model->id = (string) Str::uuid();
+            if (!$model->id) {
+                $model->id = (string)Str::uuid();
             }
         });
     }
 
     protected $fillable = [
         'game_id',
-        'turn',
         'player_index',
-        'column',
+        'user_id',
+        'matchmaking_queue_id',
     ];
 
     protected $casts = [
         'game_id' => 'string',
-        'turn' => 'integer',
         'player_index' => PlayerIndex::class,
-        'column' => 'integer',
+        'user_id' => 'string',
+        'matchmaking_queue_id' => 'string',
     ];
-
 
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class);
     }
 
-    public function player(): ?GamePlayer
+    public function user(): BelongsTo
     {
-        return $this->game()->first()->player($this->player_index);
+        return $this->belongsTo(User::class);
     }
+
+    public function matchmakingQueue(): BelongsTo
+    {
+        return $this->belongsTo(MatchmakingQueue::class);
+    }
+
+    public function opponent(): ?GamePlayer
+    {
+        return $this->game
+            ->players()
+            ->where('player_index', '!=', $this->player_index)
+            ->first();
+    }
+
 }
