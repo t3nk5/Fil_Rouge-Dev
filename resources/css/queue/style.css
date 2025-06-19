@@ -285,6 +285,10 @@ body {
     color: #c0392b;
 }
 
+.player-status.in-game {
+    color: #3498db;
+}
+
 /* Actions */
 .actions-section {
     display: flex;
