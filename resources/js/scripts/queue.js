@@ -1,10 +1,9 @@
 ﻿import '../app.js';
 
-let waitingStartTime = Date.now();
 let hasOpponent = false;
+let waitingStartTime = Date.now();
 let waitingTimer;
 let messageTimeout;
-let messageInterval;
 
 const selfPlayerElement = document.getElementById("player-1");
 const selfQueueId = selfPlayerElement.dataset.queueId;
@@ -12,6 +11,7 @@ const gameId = selfPlayerElement.dataset.gameId;
 
 const readyBtn = document.getElementById("btn-ready");
 const notReadyBtn = document.getElementById("btn-not-ready");
+const cancelBtn = document.getElementById("btn-cancel");
 
 window.Echo.private(window.appConfig.ws.channels.queue.leave + selfQueueId)
     .listen(window.appConfig.ws.alias.queue.leave, (response) => {
@@ -26,11 +26,8 @@ window.Echo.private(window.appConfig.ws.channels.queue.leave + selfQueueId)
 
     });
 
-
 window.Echo.private(window.appConfig.ws.channels.game.pre_update + gameId)
     .listen(window.appConfig.ws.alias.game.pre_update, (response) => {
-        console.log(response);
-
         // player 1 (self)
         const selfQueue = response.queues[selfQueueId];
         waitingStartTime = new Date(selfQueue.entry_time).getTime();
@@ -44,6 +41,9 @@ window.Echo.private(window.appConfig.ws.channels.game.pre_update + gameId)
             readyBtn.classList.remove("d-none");
         } else if (selfQueue.status === 1) { // currently ready
             notReadyBtn.classList.remove("d-none");
+        } else if (selfQueue.status === 2) {
+            cancelBtn.classList.add("d-none");
+            window.location.href = window.appConfig.routes.game.index + response.game_id;
         }
 
         // player 2 (opponent)
@@ -67,6 +67,11 @@ window.Echo.private(window.appConfig.ws.channels.game.pre_update + gameId)
             })
             hasOpponent = false;
         }
+    });
+
+window.Echo.private(window.appConfig.ws.channels.game.start + gameId)
+    .listen(window.appConfig.ws.alias.game.start, (response) => {
+        window.location.href = window.appConfig.routes.game.index + response.game.id;
     });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -117,7 +122,7 @@ function updatePlayer(player_index, {queue_id, username, status, avatar}) {
                 statusElement.classList.add('ready');
                 break;
             case 2:
-                statusElement.innerText = 'En Partie'
+                statusElement.innerText = 'En Jeu'
                 statusElement.classList.add('in-game');
                 break;
             default:
@@ -127,7 +132,7 @@ function updatePlayer(player_index, {queue_id, username, status, avatar}) {
     }
 }
 
-document.getElementById('btn-ready').addEventListener('click', function () {
+readyBtn.addEventListener('click', function () {
     axios.post(window.appConfig.routes.game.pre_update, {
         'game_id': gameId,
         'update': {
@@ -136,7 +141,7 @@ document.getElementById('btn-ready').addEventListener('click', function () {
         }
     }).then(response => console.log(response.data));
 })
-document.getElementById('btn-not-ready').addEventListener('click', function () {
+notReadyBtn.addEventListener('click', function () {
     axios.post(window.appConfig.routes.game.pre_update, {
         'game_id': gameId,
         'update': {
@@ -145,7 +150,7 @@ document.getElementById('btn-not-ready').addEventListener('click', function () {
         }
     }).then(response => console.log(response.data));
 })
-document.getElementById('btn-cancel').addEventListener('click', function () {
+cancelBtn.addEventListener('click', function () {
     axios.post(window.appConfig.routes.queue.leave, {
         'queue_id': selfQueueId,
     }).then(response => {
@@ -175,25 +180,8 @@ function loadOnlineStats() {
     }, 5000);
 }
 
-// Accepter partie
-function acceptGame() {
-    const p1Status = document.querySelector('#player-1 .player-status');
-    p1Status.innerText = 'Prêt'
-    p1Status.classList.remove('not-ready');
-    p1Status.classList.add('ready')
-
-    showMessage("Joueurs prêts, la partie va commencer...", "success");
-
-    // create game
-
-    setTimeout(() => {
-        // window.location.href = '{{ route('game.index', ['id' => 1]) }}';
-    }, 1500);
-}
-
 // Nettoyage avant fermeture de la page
 window.addEventListener('beforeunload', function () {
     clearInterval(waitingTimer);
     clearTimeout(messageTimeout);
-    clearTimeout(messageInterval);
 });

@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Enums\GameStatus;
+use App\Enums\Matchmaking;
 use App\Enums\PlayerIndex;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -55,6 +55,12 @@ class Game extends Model
     public function hasPlace(): bool
     {
         return $this->status == GameStatus::InInit && $this->players->count() < 2;
+    }
+
+    public function canStart(): bool
+    {
+        return $this->status == GameStatus::InInit && !$this->hasPlace()
+            && $this->players->every(fn($player) => $player->matchmakingQueue->status === Matchmaking::Ready);
     }
 
     public function getNewPlayerIndex(): ?PlayerIndex

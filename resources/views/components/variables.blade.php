@@ -9,6 +9,7 @@
                 leave: '{{ route('queue.leave') }}',
             },
             game: {
+                index: '{{ route('game.index.template') }}/',
                 pre_update: '{{ route('game.pre-update') }}',
             },
         },
@@ -21,6 +22,7 @@
                 },
                 game: {
                     pre_update: 'game-channel.pre-update-',
+                    start: 'game-channel.start-',
                 }
             },
             alias: {
@@ -31,6 +33,7 @@
                 },
                 game: {
                     pre_update: '.game-pre-update',
+                    start: '.game-start',
                 }
             },
         },

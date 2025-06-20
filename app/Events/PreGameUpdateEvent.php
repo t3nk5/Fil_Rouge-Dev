@@ -4,7 +4,6 @@ namespace App\Events;
 
 use App\Enums\Matchmaking;
 use App\Models\Game;
-use App\Models\GamePlayer;
 use App\Models\MatchmakingQueue;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -21,12 +20,14 @@ class PreGameUpdateEvent implements ShouldBroadcast
      * @var array<int, MatchmakingQueue>
      */
     public array $queues;
+    public string $game_id;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(public readonly Game $game, ?array $update = null)
+    public function __construct(private readonly Game $game, ?array $update = null)
     {
+        $this->game_id = $this->game->id;
         $this->queues = $this->game->players
             ->mapWithKeys(fn($player) => [$player->matchmakingQueue->id => $player->matchmakingQueue->load('user')])
             ->all();
@@ -34,10 +35,16 @@ class PreGameUpdateEvent implements ShouldBroadcast
         if ($update) {
             switch ($update['status']) {
                 case 'ready':
-                    $this->queues[$update['queue_id']]->update(['status' => Matchmaking::Ready]);
+                    $this->queues[$update['queue_id']]->update([
+                        'status' => Matchmaking::Ready,
+                        'ready_at' => now(),
+                    ]);
                     break;
                 case 'not-ready':
-                    $this->queues[$update['queue_id']]->update(['status' => Matchmaking::NotReady]);
+                    $this->queues[$update['queue_id']]->update([
+                        'status' => Matchmaking::NotReady,
+                        'ready_at' => null,
+                    ]);
                     break;
             }
         }

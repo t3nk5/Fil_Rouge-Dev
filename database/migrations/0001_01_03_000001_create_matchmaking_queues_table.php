@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->unique()->constrained()->onDelete('cascade');
             $table->timestamp('entry_time')->useCurrent();
             $table->tinyInteger('status')->default(0);
+            $table->timestamp('ready_at')->nullable();
         });
     }
 

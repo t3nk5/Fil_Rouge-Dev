@@ -29,7 +29,6 @@ window.Echo.private(window.appConfig.ws.channels.queue.join + userId)
         const playBtn = document.getElementById('play-btn');
         const playIcon = playBtn.querySelector('.play-icon');
 
-        console.log(response)
         window.location.href = window.appConfig.routes.queue.index;
 
         playBtn.classList.remove('loading');

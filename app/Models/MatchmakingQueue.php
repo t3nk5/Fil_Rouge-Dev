@@ -15,12 +15,14 @@ class MatchmakingQueue extends Model
         'user_id',
         'entry_time',
         'status',
+        'ready_at',
     ];
 
     protected $casts = [
         'user_id' => 'string',
         'entry_time' => 'datetime',
         'status' => Matchmaking::class,
+        'ready_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

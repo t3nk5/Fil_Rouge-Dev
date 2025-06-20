@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GameStartEvent;
 use App\Events\PreGameUpdateEvent;
 use App\Models\Game;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -22,6 +24,15 @@ class GameController extends Controller
 
         PreGameUpdateEvent::dispatch($game, $update);
 
-        return response()->json(['message' => "{$request->user()->name} request game ($game->id) start check."]);
+        if ($game->canStart())
+            GameStartEvent::dispatch($game);
+
+        return response()->json(['message' => "{$request->user()->name} request pre game ($game->id) infos update."]);
+    }
+
+
+    public function template(): RedirectResponse
+    {
+        return redirect()->route('index');
     }
 }
