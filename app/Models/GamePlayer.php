@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PlayerIndex;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class GamePlayer extends Model
@@ -53,12 +54,9 @@ class GamePlayer extends Model
         return $this->belongsTo(MatchmakingQueue::class);
     }
 
-    public function opponent(): ?GamePlayer
+    public function opponent(): HasOne
     {
-        return $this->game
-            ->players()
-            ->where('player_index', '!=', $this->player_index)
-            ->first();
+        return $this->hasOne(GamePlayer::class, 'game_id', 'game_id')
+            ->where('player_index', '!=', $this->player_index);
     }
-
 }

@@ -8,7 +8,7 @@
         @auth
             <div>
                 <span class="welcome-text">Bienvenue,</span>
-                <span class="username" id="username">{{ Auth::user()->name }}</span>
+                <span class="username" id="username" data-user-id="{{ Auth::user()->id }}">{{ Auth::user()->name }}</span>
             </div>
         <form action="{{ route('auth.logout') }}" method="post">
             @method('delete')

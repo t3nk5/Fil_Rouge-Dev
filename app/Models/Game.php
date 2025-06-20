@@ -54,7 +54,7 @@ class Game extends Model
 
     public function hasPlace(): bool
     {
-        return $this->status == GameStatus::InInit && $this->players()->count() < 2;
+        return $this->status == GameStatus::InInit && $this->players->count() < 2;
     }
 
     public function getNewPlayerIndex(): ?PlayerIndex

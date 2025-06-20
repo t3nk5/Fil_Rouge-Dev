@@ -1,5 +1,7 @@
 import '../app.js';
 
+const userId = document.getElementById('username').dataset.userId;
+
 function playGame() {
     const playBtn = document.getElementById('play-btn');
     const playIcon = playBtn.querySelector('.play-icon');
@@ -22,7 +24,7 @@ function playGame() {
         });
 }
 
-window.Echo.private(window.appConfig.ws.channels.queue.join)
+window.Echo.private(window.appConfig.ws.channels.queue.join + userId)
     .listen(window.appConfig.ws.alias.queue.join, (response) => {
         const playBtn = document.getElementById('play-btn');
         const playIcon = playBtn.querySelector('.play-icon');

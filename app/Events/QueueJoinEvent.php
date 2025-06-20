@@ -2,10 +2,10 @@
 
 namespace App\Events;
 
+use App\Enums\Matchmaking;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use App\Models\MatchmakingQueue;
-use App\Models\Session;
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -29,15 +29,21 @@ class QueueJoinEvent implements ShouldBroadcast
         $queue = MatchmakingQueue::firstOrCreate(['user_id' => $this->user->id,]);
         $this->queue_id = $queue->id;
 
-        $this->game = Game::firstWithPlaceOrCreate();
         $this->player = GamePlayer::firstOrCreate(
             ['matchmaking_queue_id' => $queue->id],
             [
-                'game_id' => $this->game->id,
-                'player_index' => $this->game->getNewPlayerIndex(),
+                'game_id' => ($game = Game::firstWithPlaceOrCreate())->id,
+                'player_index' => $game->getNewPlayerIndex(),
                 'user_id' => $this->user->id,
             ]
         );
+        $this->game = $this->player->game;
+
+        if (!$this->game->hasPlace())
+            foreach ($this->game->players as $player) {
+                $player->matchmakingQueue->status = Matchmaking::NotReady;
+                $player->matchmakingQueue->save();
+            }
 
         $this->message = "{$this->user->name} joined queue ($this->queue_id) ; game {$this->game->id}, player {$this->player->player_index->value}";
     }
@@ -50,7 +56,7 @@ class QueueJoinEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('queue-channel.join'),
+            new PrivateChannel('queue-channel.join-' . $this->user->id),
         ];
     }
 

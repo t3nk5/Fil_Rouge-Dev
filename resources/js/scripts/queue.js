@@ -5,43 +5,47 @@ let waitingTimer;
 let messageTimeout;
 let messageInterval;
 
-const player1Element = document.getElementById("player-1");
-const player1QueueId = player1Element.dataset.queueId;
-const player1GameId = player1Element.dataset.gameId;
+const selfPlayerElement = document.getElementById("player-1");
+const selfQueueId = selfPlayerElement.dataset.queueId;
+const gameId = selfPlayerElement.dataset.gameId;
 
-window.Echo.private(window.appConfig.ws.channels.queue.request + player1QueueId)
-    .listen(window.appConfig.ws.alias.queue.request, (response) => {
-        console.log(response);
-
-        waitingStartTime = new Date(response.matchmakingQueue.entry_time).getTime();
-
-        updatePlayer(1, {
-            queue_id: response.matchmakingQueue.id,
-            username: response.username,
-            status: response.matchmakingQueue.status,
-        })
-    });
-
-window.Echo.private(window.appConfig.ws.channels.queue.leave + player1QueueId)
+window.Echo.private(window.appConfig.ws.channels.queue.leave + selfQueueId)
     .listen(window.appConfig.ws.alias.queue.leave, (response) => {
         console.log(response);
         window.location.href = window.appConfig.routes.index;
     });
 
-window.Echo.private(window.appConfig.ws.channels.game.start_check + player1GameId)
+
+window.Echo.private(window.appConfig.ws.channels.game.start_check + gameId)
     .listen(window.appConfig.ws.alias.game.start_check, (response) => {
         console.log(response);
+
+        // player 1 (self)
+        const selfQueue = response.queues[selfQueueId];
+        waitingStartTime = new Date(selfQueue.entry_time).getTime();
+        updatePlayer(1, {
+            status: selfQueue.status,
+        })
+
+        // player 2 (opponent)
+        const opponentQueueId = Object.keys(response.queues)
+            .find(id => id !== selfQueueId);
+        if (opponentQueueId) {
+            const opponentQueue = response.queues[opponentQueueId];
+            updatePlayer(2, {
+                username: opponentQueue.user.name,
+                status: selfQueue.status,
+            })
+
+            showMessage("Adversaire trouvé ! Acceptez la partie pour jouer...", "success")
+        }
     });
 
 document.addEventListener('DOMContentLoaded', function () {
-    axios.post(window.appConfig.routes.queue.request)
-        .then(response => console.log(response.data))
-    // axios.post(window.appConfig.routes.queue.request)
-    //     .then(response => console.log(response.data))
+    axios.post(window.appConfig.routes.game.start_check)
+        .then(response => console.log(response.data));
 
     startWaitingTimer();
-
-    // simulateWaitingProcess();
     // loadOnlineStats();
 });
 
@@ -95,67 +99,28 @@ document.getElementById('btn-accept').addEventListener('click', function () {
 })
 document.getElementById('btn-cancel').addEventListener('click', function () {
     axios.post(window.appConfig.routes.queue.leave, {
-        'queue_id': document.getElementById('player-1').dataset.queueId,
+        'queue_id': selfQueueId,
     }).then(response => {
         console.log(response.data.message);
     });
 })
 
+// Afficher un message
+function showMessage(text, type = "info") {
+    const messageSection = document.getElementById('message-section');
+    const messageText = document.getElementById('message-text');
 
+    messageText.textContent = text;
+    messageSection.className = `message-section show ${type}`;
+
+    clearTimeout(messageTimeout);
+    messageTimeout = setTimeout(() => {
+        messageSection.classList.remove('show');
+    }, 5000);
+}
 
 
 //
-
-// Mettre à jour quand un joueur est trouvé
-function updatePlayerFound() {
-    const player1 = document.getElementById('player-1');
-    const player2 = document.getElementById('player-2');
-
-    const p1Status = player1.querySelector('.player-status');
-    p1Status.innerText = 'Pas Prêt'
-    p1Status.classList.remove('waiting');
-    p1Status.classList.add('not-ready');
-
-    player2.querySelector('.player-avatar').innerText = '{{ $opponent->username[0] }}';
-    player2.querySelector('.player-name').innerText = '{{ $opponent->username }}';
-
-    const p2Status = player2.querySelector('.player-status');
-    p2Status.innerText = 'Prêt'
-    p2Status.classList.add('ready');
-
-    document.getElementById('btn-accept').classList.remove('d-none');
-
-    showMessage("Adversaire trouvé ! Acceptez la partie pour jouer...", "success");
-}
-
-// Simulation du processus d'attente
-function simulateWaitingProcess() {
-    const messages = [
-        "Recherche d'un adversaire...",
-        "Adversaire trouvé ! Préparation de la partie...",
-        "En attente des joueurs..."
-    ];
-
-    let currentMessage = 0;
-
-    messageInterval = setInterval(() => {
-        if (currentMessage < messages.length) {
-            document.getElementById('status-message').textContent = messages[currentMessage];
-
-            if (currentMessage >= 1) {
-                updatePlayerFound();
-            }
-
-            currentMessage++;
-        } else {
-            clearInterval(messageInterval);
-            // Redirection vers la partie après 3 secondes
-            // setTimeout(() => {
-            //     window.location.href = '/game';
-            // }, 3000);
-        }
-    }, 5000);
-}
 
 function loadOnlineStats() {
     setInterval(() => {
@@ -177,21 +142,6 @@ function acceptGame() {
     setTimeout(() => {
         // window.location.href = '{{ route('game.index', ['id' => 1]) }}';
     }, 1500);
-}
-
-// Afficher un message
-function showMessage(text, type = "info") {
-    const messageSection = document.getElementById('message-section');
-    const messageText = document.getElementById('message-text');
-
-    messageText.textContent = text;
-    messageSection.className = `message-section show ${type}`;
-
-    // Cacher le message après 5 secondes
-    clearTimeout(messageTimeout);
-    messageTimeout = setTimeout(() => {
-        messageSection.classList.remove('show');
-    }, 5000);
 }
 
 // Nettoyage avant fermeture de la page

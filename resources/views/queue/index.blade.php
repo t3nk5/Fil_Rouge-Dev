@@ -20,9 +20,6 @@
 
             <div class="status-section">
                 <h1 class="status-title">Recherche en cours<span class="dots"></span></h1>
-                <p class="status-message" id="status-message">
-                    Nous recherchons un adversaire pour vous. Cela ne devrait pas prendre longtemps !
-                </p>
 
                 <div class="status-details">
                     <div class="detail-item">
@@ -47,6 +44,7 @@
                 <div class="players-list">
                     <div id="player-1" class="player-item"
                          data-queue-id="{{ Auth::user()->queue->id }}"
+                         data-game-id="{{ Auth::user()->queue->gamePlayer->game->id }}"
                     >
                         <div class="player-info">
                             <div class="player-avatar">{{ Auth::user()->name[0] }}</div>

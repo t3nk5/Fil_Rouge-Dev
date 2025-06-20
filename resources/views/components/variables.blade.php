@@ -8,14 +8,14 @@
                 request: '{{ route('queue.request') }}',
                 leave: '{{ route('queue.leave') }}',
             },
-            queue: {
+            game: {
                 start_check: '{{ route('game.start-check') }}',
             },
         },
         ws: {
             channels: {
                 queue: {
-                    join: 'queue-channel.join',
+                    join: 'queue-channel.join-',
                     request: 'queue-channel.request-',
                     leave: 'queue-channel.leave-',
                 },

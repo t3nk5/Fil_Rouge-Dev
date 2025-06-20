@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GameStartCheckEvent;
 use App\Events\QueueRequestEvent;
 use App\Events\QueueJoinEvent;
 use App\Events\QueueLeaveEvent;
@@ -29,7 +30,7 @@ class QueueController extends Controller
         $user = $request->user();
 
         QueueJoinEvent::dispatch($user);
-//        GameStartCheckEvent::dispatch($user->queue);
+        GameStartCheckEvent::dispatch($user->queue);
 
         return response()->json(['message' => "$user->name joining queue."]);
     }
