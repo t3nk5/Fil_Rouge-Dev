@@ -64,9 +64,13 @@
 
             <!-- Actions -->
             <div class="actions-section">
-                <button id="btn-accept" class="btn btn-success btn-large {{--d-none--}}">
+                <button id="btn-ready" class="btn btn-success btn-large d-none">
                     <span>✓</span>
-                    Accepter
+                    Prêt
+                </button>
+                <button id="btn-not-ready" class="btn btn-danger-transparent btn-large d-none">
+                    <span>✕</span>
+                    Pas Prêt
                 </button>
                 <button id="btn-cancel" class="btn btn-danger btn-large">
                     <span>✕</span>

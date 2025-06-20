@@ -18,8 +18,9 @@ class GameController extends Controller
     public function preUpdate(Request $request): JsonResponse
     {
         $game = Game::find($request->input('game_id'));
+        $update = $request->input('update');
 
-        PreGameUpdateEvent::dispatch($game);
+        PreGameUpdateEvent::dispatch($game, $update);
 
         return response()->json(['message' => "{$request->user()->name} request game ($game->id) start check."]);
     }

@@ -27,10 +27,8 @@ class QueueLeaveEvent implements ShouldBroadcast
         $this->queue_id = $queue->id;
         $this->message = "queue $this->queue_id leaved by {$queue->user->name}";
 
-        if ($opponent = $queue->gamePlayer->opponent) {
-            $opponent->matchmakingQueue->status = Matchmaking::Waiting;
-            $opponent->matchmakingQueue->save();
-        }
+        if ($opponent = $queue->gamePlayer->opponent)
+            $opponent->matchmakingQueue->update(['status' => Matchmaking::Waiting]);
 
         $queue->gamePlayer->delete();
         $queue->delete();

@@ -1,6 +1,7 @@
 ﻿import '../app.js';
 
 let waitingStartTime = Date.now();
+let hasOpponent = false;
 let waitingTimer;
 let messageTimeout;
 let messageInterval;
@@ -8,6 +9,9 @@ let messageInterval;
 const selfPlayerElement = document.getElementById("player-1");
 const selfQueueId = selfPlayerElement.dataset.queueId;
 const gameId = selfPlayerElement.dataset.gameId;
+
+const readyBtn = document.getElementById("btn-ready");
+const notReadyBtn = document.getElementById("btn-not-ready");
 
 window.Echo.private(window.appConfig.ws.channels.queue.leave + selfQueueId)
     .listen(window.appConfig.ws.alias.queue.leave, (response) => {
@@ -34,6 +38,14 @@ window.Echo.private(window.appConfig.ws.channels.game.pre_update + gameId)
             status: selfQueue.status,
         })
 
+        readyBtn.classList.add("d-none");
+        notReadyBtn.classList.add("d-none");
+        if (selfQueue.status === -1) { // currently not ready
+            readyBtn.classList.remove("d-none");
+        } else if (selfQueue.status === 1) { // currently ready
+            notReadyBtn.classList.remove("d-none");
+        }
+
         // player 2 (opponent)
         const opponentQueueId = Object.keys(response.queues)
             .find(id => id !== selfQueueId);
@@ -41,16 +53,19 @@ window.Echo.private(window.appConfig.ws.channels.game.pre_update + gameId)
             const opponentQueue = response.queues[opponentQueueId];
             updatePlayer(2, {
                 username: opponentQueue.user.name,
-                status: selfQueue.status,
+                status: opponentQueue.status,
             })
 
-            showMessage("Adversaire trouvé ! Acceptez la partie pour jouer...", "success")
+            if (!hasOpponent)
+                showMessage("Adversaire trouvé ! Acceptez la partie pour jouer...", "success")
+            hasOpponent = true;
         } else {
             updatePlayer(2, {
                 avatar: '?',
                 username: 'En attente...',
                 status: 'default',
             })
+            hasOpponent = false;
         }
     });
 
@@ -112,7 +127,23 @@ function updatePlayer(player_index, {queue_id, username, status, avatar}) {
     }
 }
 
-document.getElementById('btn-accept').addEventListener('click', function () {
+document.getElementById('btn-ready').addEventListener('click', function () {
+    axios.post(window.appConfig.routes.game.pre_update, {
+        'game_id': gameId,
+        'update': {
+            'queue_id': selfQueueId,
+            'status': 'ready',
+        }
+    }).then(response => console.log(response.data));
+})
+document.getElementById('btn-not-ready').addEventListener('click', function () {
+    axios.post(window.appConfig.routes.game.pre_update, {
+        'game_id': gameId,
+        'update': {
+            'queue_id': selfQueueId,
+            'status': 'not-ready',
+        }
+    }).then(response => console.log(response.data));
 })
 document.getElementById('btn-cancel').addEventListener('click', function () {
     axios.post(window.appConfig.routes.queue.leave, {

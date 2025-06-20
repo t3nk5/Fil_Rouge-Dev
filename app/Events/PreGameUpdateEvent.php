@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Enums\Matchmaking;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use App\Models\MatchmakingQueue;
@@ -24,11 +25,22 @@ class PreGameUpdateEvent implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(public readonly Game $game)
+    public function __construct(public readonly Game $game, ?array $update = null)
     {
         $this->queues = $this->game->players
             ->mapWithKeys(fn($player) => [$player->matchmakingQueue->id => $player->matchmakingQueue->load('user')])
             ->all();
+
+        if ($update) {
+            switch ($update['status']) {
+                case 'ready':
+                    $this->queues[$update['queue_id']]->update(['status' => Matchmaking::Ready]);
+                    break;
+                case 'not-ready':
+                    $this->queues[$update['queue_id']]->update(['status' => Matchmaking::NotReady]);
+                    break;
+            }
+        }
     }
 
     /**

@@ -58,6 +58,17 @@ body {
     transform: translateY(-1px);
 }
 
+.btn-danger-transparent {
+     background: #ecf0f1;
+     color: #2c3e50;
+ }
+
+.btn-danger-transparent:hover {
+    background: #e74c3c;
+    color: white;
+    transform: translateY(-1px);
+}
+
 .btn-danger {
     background: #e74c3c;
     color: white;
