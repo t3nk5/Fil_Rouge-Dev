@@ -13,7 +13,7 @@ window.Echo.private(window.appConfig.ws.channels.queue.leave + selfQueueId)
     .listen(window.appConfig.ws.alias.queue.leave, (response) => {
         console.log(response);
 
-        axios.post(window.appConfig.routes.game.start_check, {'game_id': gameId})
+        axios.post(window.appConfig.routes.game.pre_update, {'game_id': gameId})
             .then(r => {
                 console.log(r.data)
 
@@ -23,8 +23,8 @@ window.Echo.private(window.appConfig.ws.channels.queue.leave + selfQueueId)
     });
 
 
-window.Echo.private(window.appConfig.ws.channels.game.start_check + gameId)
-    .listen(window.appConfig.ws.alias.game.start_check, (response) => {
+window.Echo.private(window.appConfig.ws.channels.game.pre_update + gameId)
+    .listen(window.appConfig.ws.alias.game.pre_update, (response) => {
         console.log(response);
 
         // player 1 (self)
@@ -55,7 +55,7 @@ window.Echo.private(window.appConfig.ws.channels.game.start_check + gameId)
     });
 
 document.addEventListener('DOMContentLoaded', function () {
-    axios.post(window.appConfig.routes.game.start_check, {'game_id': gameId})
+    axios.post(window.appConfig.routes.game.pre_update, {'game_id': gameId})
         .then(response => console.log(response.data));
 
     startWaitingTimer();

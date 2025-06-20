@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\GameStartCheckEvent;
+use App\Events\PreGameUpdateEvent;
 use App\Models\Game;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,11 +15,11 @@ class GameController extends Controller
         return view('game.index', ['game' => $id]);
     }
 
-    public function startCheck(Request $request): JsonResponse
+    public function preUpdate(Request $request): JsonResponse
     {
         $game = Game::find($request->input('game_id'));
 
-        GameStartCheckEvent::dispatch($game);
+        PreGameUpdateEvent::dispatch($game);
 
         return response()->json(['message' => "{$request->user()->name} request game ($game->id) start check."]);
     }

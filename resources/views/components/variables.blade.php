@@ -9,7 +9,7 @@
                 leave: '{{ route('queue.leave') }}',
             },
             game: {
-                start_check: '{{ route('game.start-check') }}',
+                pre_update: '{{ route('game.pre-update') }}',
             },
         },
         ws: {
@@ -20,7 +20,7 @@
                     leave: 'queue-channel.leave-',
                 },
                 game: {
-                    start_check: 'game-channel.start-check-',
+                    pre_update: 'game-channel.pre-update-',
                 }
             },
             alias: {
@@ -30,7 +30,7 @@
                     leave: '.queue-leave',
                 },
                 game: {
-                    start_check: '.game-start-check',
+                    pre_update: '.game-pre-update',
                 }
             },
         },

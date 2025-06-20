@@ -24,7 +24,7 @@ Broadcast::channel('queue-channel.leave-{queueId}', function (User $user, int $q
     return $user->is($queue?->user);
 });
 
-Broadcast::channel('game-channel.start-check-{gameId}', function (User $user, string $gameId) {
+Broadcast::channel('game-channel.pre-update-{gameId}', function (User $user, string $gameId) {
     return GamePlayer::where('game_id', $gameId)
         ->where('user_id', $user->id)
         ->exists();

@@ -13,7 +13,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class GameStartCheckEvent implements ShouldBroadcast
+class PreGameUpdateEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     /**
@@ -39,12 +39,12 @@ class GameStartCheckEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('game-channel.start-check-' . $this->game->id),
+            new PrivateChannel('game-channel.pre-update-' . $this->game->id),
         ];
     }
 
     public function broadcastAs(): string
     {
-        return 'game-start-check';
+        return 'game-pre-update';
     }
 }
