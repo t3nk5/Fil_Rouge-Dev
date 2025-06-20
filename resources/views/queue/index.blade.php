@@ -52,7 +52,7 @@
                         </div>
                         <span class="player-status"></span>
                     </div>
-                    <div id="player-2" class="player-item">
+                    <div id="player-2" class="player-item d-none">
                         <div class="player-info">
                             <div class="player-avatar">?</div>
                             <span class="player-name">En attente...</span>

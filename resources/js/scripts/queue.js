@@ -12,7 +12,14 @@ const gameId = selfPlayerElement.dataset.gameId;
 window.Echo.private(window.appConfig.ws.channels.queue.leave + selfQueueId)
     .listen(window.appConfig.ws.alias.queue.leave, (response) => {
         console.log(response);
-        window.location.href = window.appConfig.routes.index;
+
+        axios.post(window.appConfig.routes.game.start_check, {'game_id': gameId})
+            .then(r => {
+                console.log(r.data)
+
+                window.location.href = window.appConfig.routes.index;
+            });
+
     });
 
 
@@ -38,11 +45,17 @@ window.Echo.private(window.appConfig.ws.channels.game.start_check + gameId)
             })
 
             showMessage("Adversaire trouvé ! Acceptez la partie pour jouer...", "success")
+        } else {
+            updatePlayer(2, {
+                avatar: '?',
+                username: 'En attente...',
+                status: 'default',
+            })
         }
     });
 
 document.addEventListener('DOMContentLoaded', function () {
-    axios.post(window.appConfig.routes.game.start_check)
+    axios.post(window.appConfig.routes.game.start_check, {'game_id': gameId})
         .then(response => console.log(response.data));
 
     startWaitingTimer();
@@ -60,12 +73,14 @@ function startWaitingTimer() {
     }, 1000);
 }
 
-function updatePlayer(player_index, {queue_id, username, status}) {
+function updatePlayer(player_index, {queue_id, username, status, avatar}) {
     const playerElement = document.getElementById('player-' + player_index);
     if (queue_id != null) playerElement.dataset.queueId = queue_id;
+    playerElement.classList.remove('d-none');
 
     const avatarElement = playerElement.querySelector('.player-avatar');
-    if (username != null) avatarElement.innerText = username[0];
+    if (avatar != null) avatarElement.innerText = avatar[0];
+    else if (username != null) avatarElement.innerText = username[0];
 
     const nameElement = playerElement.querySelector('.player-name');
     if (username != null) nameElement.innerText = username;
@@ -90,7 +105,9 @@ function updatePlayer(player_index, {queue_id, username, status}) {
                 statusElement.innerText = 'En Partie'
                 statusElement.classList.add('in-game');
                 break;
-
+            default:
+                statusElement.innerText = 'Recherche'
+                break;
         }
     }
 }
@@ -105,7 +122,6 @@ document.getElementById('btn-cancel').addEventListener('click', function () {
     });
 })
 
-// Afficher un message
 function showMessage(text, type = "info") {
     const messageSection = document.getElementById('message-section');
     const messageText = document.getElementById('message-text');

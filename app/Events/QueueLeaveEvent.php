@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Enums\Matchmaking;
 use App\Models\MatchmakingQueue;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -25,6 +26,13 @@ class QueueLeaveEvent implements ShouldBroadcast
     {
         $this->queue_id = $queue->id;
         $this->message = "queue $this->queue_id leaved by {$queue->user->name}";
+
+        if ($opponent = $queue->gamePlayer->opponent) {
+            $opponent->matchmakingQueue->status = Matchmaking::Waiting;
+            $opponent->matchmakingQueue->save();
+        }
+
+        $queue->gamePlayer->delete();
         $queue->delete();
     }
 

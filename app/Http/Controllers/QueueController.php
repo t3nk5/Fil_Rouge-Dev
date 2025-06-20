@@ -30,7 +30,7 @@ class QueueController extends Controller
         $user = $request->user();
 
         QueueJoinEvent::dispatch($user);
-        GameStartCheckEvent::dispatch($user->queue);
+        GameStartCheckEvent::dispatch($user->queue->gamePlayer->game);
 
         return response()->json(['message' => "$user->name joining queue."]);
     }

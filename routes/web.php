@@ -17,7 +17,7 @@ Route::prefix('/queue')->name('queue.')->controller(QueueController::class)->gro
 
 Route::prefix('/game')->name('game.')->controller(GameController::class)->group(function () {
     Route::get('/play-{id}', 'index')->name('index')->middleware('auth');
-    Route::post('/start-check', 'startCheck')->name('start-check')->middleware(['auth', 'in-queue']);
+    Route::post('/start-check', 'startCheck')->name('start-check')->middleware('auth');
 });
 
 Route::prefix('/auth')->name('auth.')->controller(AuthController::class)->group(function () {

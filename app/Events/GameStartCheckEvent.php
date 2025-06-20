@@ -16,11 +16,6 @@ use Illuminate\Queue\SerializesModels;
 class GameStartCheckEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    public readonly Game $game;
-    private readonly GamePlayer $player;
-    private readonly ?MatchmakingQueue $opponentQueue;
-
     /**
      * @var array<int, MatchmakingQueue>
      */
@@ -29,19 +24,11 @@ class GameStartCheckEvent implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(private readonly MatchmakingQueue $selfQueue)
+    public function __construct(public readonly Game $game)
     {
-        $this->player = $this->selfQueue->gamePlayer;
-        $this->game = $this->player->game;
-        $this->opponentQueue = $this->player->opponent?->matchmakingQueue;
-
-        $this->queues = [
-            $this->selfQueue->id => $this->selfQueue->load('user'),
-        ];
-
-        if ($this->opponentQueue !== null) {
-            $this->queues[$this->opponentQueue->id] = $this->opponentQueue->load('user');
-        }
+        $this->queues = $this->game->players
+            ->mapWithKeys(fn($player) => [$player->matchmakingQueue->id => $player->matchmakingQueue->load('user')])
+            ->all();
     }
 
     /**
