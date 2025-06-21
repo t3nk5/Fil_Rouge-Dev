@@ -14,9 +14,11 @@ use Illuminate\View\View;
 
 class GameController extends Controller
 {
-    public function index(string $id): View
+    public function index(string $id): View|RedirectResponse
     {
-        return view('game.index', ['game_id' => $id]);
+        if (Game::find($id))
+            return view('game.index', ['game_id' => $id]);
+        return redirect()->route('index');
     }
 
     public function preUpdate(Request $request): JsonResponse
