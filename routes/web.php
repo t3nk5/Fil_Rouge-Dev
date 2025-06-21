@@ -6,7 +6,9 @@ use App\Http\Controllers\QueueController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController2;
 
-Route::get('/', function () { return view('index'); })->name('index');
+Route::get('/', function () {
+    return view('index');
+})->name('index');
 
 Route::prefix('/queue')->name('queue.')->controller(QueueController::class)->group(function () {
     Route::get('/', 'index')->name('index')->middleware(['auth', 'in-queue']);
@@ -16,9 +18,11 @@ Route::prefix('/queue')->name('queue.')->controller(QueueController::class)->gro
 });
 
 Route::prefix('/game')->name('game.')->controller(GameController::class)->group(function () {
-    Route::get('/play/{id}', 'index')->name('index')->middleware('auth');
+    Route::get('/{id}', 'index')->name('index')->where('id', '[0-9a-fA-F\-]{36}');
+    Route::post('/place', 'place')->name('place')/*->middleware('in-game')*/;
     Route::post('/pre/update', 'preUpdate')->name('pre-update')->middleware('auth');
-    Route::get('/play', 'template')->name('index.template');
+    Route::post('/update', 'update')->name('update')->middleware('auth');
+    Route::get('/', 'template')->name('index.template');
 });
 
 Route::prefix('/auth')->name('auth.')->controller(AuthController::class)->group(function () {

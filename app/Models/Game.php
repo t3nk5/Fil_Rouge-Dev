@@ -37,7 +37,7 @@ class Game extends Model
 
     public function players(): HasMany
     {
-        return $this->hasMany(GamePlayer::class);
+        return $this->hasMany(GamePlayer::class)->orderBy('player_index');
     }
 
     public function player(PlayerIndex $playerIndex): ?GamePlayer
@@ -49,7 +49,35 @@ class Game extends Model
 
     public function moves(): HasMany
     {
-        return $this->hasMany(GameMove::class);
+        return $this->hasMany(GameMove::class)
+            ->orderBy('turn')
+            ->orderBy('player_index');
+    }
+
+    public function lastMove(): ?GameMove
+    {
+        return $this->hasMany(GameMove::class)
+            ->orderByDesc('turn')
+            ->orderByDesc('player_index')
+            ->first();
+    }
+
+    public function next(): array
+    {
+        $lastMove = $this->lastMove();
+
+        $nextTurn = $lastMove
+            ? $lastMove->turn + ($lastMove->player_index === PlayerIndex::Player2 ? 1 : 0)
+            : 1;
+
+        $nextPlayerIndex = $lastMove
+            ? ($lastMove->player_index === PlayerIndex::Player1 ? PlayerIndex::Player2 : PlayerIndex::Player1)
+            : PlayerIndex::Player1;
+
+        return [
+            'turn' => $nextTurn,
+            'player' => $this->player($nextPlayerIndex),
+        ];
     }
 
     public function hasPlace(): bool
@@ -61,6 +89,11 @@ class Game extends Model
     {
         return $this->status == GameStatus::InInit && !$this->hasPlace()
             && $this->players->every(fn($player) => $player->matchmakingQueue->status === Matchmaking::Ready);
+    }
+
+    public function isEnded(): bool
+    {
+        return $this->status === GameStatus::Draw || $this->status === GameStatus::Player1_Win || $this->status === GameStatus::Player2_Win;
     }
 
     public function getNewPlayerIndex(): ?PlayerIndex

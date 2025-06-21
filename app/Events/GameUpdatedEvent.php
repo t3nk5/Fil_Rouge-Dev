@@ -2,34 +2,33 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+use App\Models\Game;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\InteractsWithSockets;
 
 class GameUpdatedEvent implements ShouldBroadcast
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public readonly array $next;
+
+    public function __construct(public readonly Game $game)
     {
-    use InteractsWithSockets, SerializesModels;
-
-    public $grid;
-    public $turn;
-    public $winner;
-
-    public function __construct($grid, $turn, $winner)
-        {
-        $this->grid = $grid;
-        $this->turn = $turn;
-        $this->winner = $winner;
+        $this->game->load(['players.user', 'moves']);
+        $this->next = $this->game->next();
     }
 
     public function broadcastOn()
     {
-        return new Channel('game-channel');
+        return new PrivateChannel('game-channel.update-' . $this->game->id);
     }
 
     public function broadcastAs()
     {
-    return 'game-updated';
+        return 'game-update';
     }
-    
-    }
+
+}

@@ -11,6 +11,8 @@
             game: {
                 index: '{{ route('game.index.template') }}/',
                 pre_update: '{{ route('game.pre-update') }}',
+                update: '{{ route('game.update') }}',
+                place: '{{ route('game.place') }}',
             },
         },
         ws: {
@@ -23,6 +25,7 @@
                 game: {
                     pre_update: 'game-channel.pre-update-',
                     start: 'game-channel.start-',
+                    update: 'game-channel.update-',
                 }
             },
             alias: {
@@ -34,6 +37,7 @@
                 game: {
                     pre_update: '.game-pre-update',
                     start: '.game-start',
+                    update: '.game-update',
                 }
             },
         },
