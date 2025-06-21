@@ -39,7 +39,7 @@ class QueueJoinEvent implements ShouldBroadcast
         );
         $this->game = $this->player->game;
 
-        if (!$this->game->hasPlace())
+        if (!$this->game->hasStarted() && !$this->game->hasPlace())
             foreach ($this->game->players as $player)
                 $player->matchmakingQueue->update(['status' => Matchmaking::NotReady]);
 
