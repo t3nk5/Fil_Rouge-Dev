@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\GameStartEvent;
-use App\Events\GameUpdatedEvent;
+use App\Events\GameUpdateEvent;
 use App\Events\PreGameUpdateEvent;
 use App\Models\Game;
 use App\Models\GameMove;
@@ -43,7 +43,7 @@ class GameController extends Controller
             foreach ($game->players as $player)
                 $player->matchmakingQueue?->delete();
 
-        GameUpdatedEvent::dispatch($game);
+        GameUpdateEvent::dispatch($game);
 
         return response()->json(['message' => "{$request->user()->name} request game ($game->id) infos update."]);
     }
@@ -63,7 +63,7 @@ class GameController extends Controller
             'player_index' => $game->next()['player']->player_index,
             'column' => $request->input('column'),
         ]);
-        GameUpdatedEvent::dispatch($game);
+        GameUpdateEvent::dispatch($game);
 
         return response()->json([
             'message' => "{$request->user()->name} place a coin in column {$request->input('column')} (game: $game->id).",

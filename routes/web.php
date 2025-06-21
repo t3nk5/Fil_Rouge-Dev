@@ -4,7 +4,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\QueueController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\GameController2;
 
 Route::get('/', function () {
     return view('index');
@@ -13,7 +12,6 @@ Route::get('/', function () {
 Route::prefix('/queue')->name('queue.')->controller(QueueController::class)->group(function () {
     Route::get('/', 'index')->name('index')->middleware(['auth', 'in-queue']);
     Route::post('/join', 'join')->name('join')->middleware('auth');
-    Route::post('/request', 'request')->name('request')->middleware('auth');
     Route::post('/leave', 'leave')->name('leave')->middleware(['auth', 'in-queue']);
 });
 
@@ -30,26 +28,3 @@ Route::prefix('/auth')->name('auth.')->controller(AuthController::class)->group(
     Route::post('/login', 'login')->name('login')->middleware('guest');
     Route::delete('/logout', 'logout')->name('logout')->middleware('auth');
 });
-
-
-//
-
-Route::prefix('/test')->name('test')->group(function () {
-    Route::get('/home', [GameController2::class, 'showGame']);
-
-    Route::get('/init', [GameController2::class, 'initGrid']);
-
-    Route::get('/play/{column}', [GameController2::class, 'play']);
-
-    Route::get('/restart', [GameController2::class, 'restart'])->name('restart');
-
-
-    Route::get('/', [GameController2::class, 'home'])->name('index');
-
-    Route::get('/login', [GameController2::class, 'login'])->name('login');
-
-    Route::get('/waiting', [GameController2::class, 'waiting'])->name('waiting');
-
-    Route::get('/game', [GameController2::class, 'game'])->name('game');
-});
-

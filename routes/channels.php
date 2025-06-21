@@ -9,11 +9,6 @@ Broadcast::channel('queue-channel.join-{userId}', function (User $user, string $
     return $user->is(User::find($userId));
 });
 
-Broadcast::channel('queue-channel.request-{queueId}', function (User $user, int $queueId) {
-    $queue = MatchmakingQueue::find($queueId);
-    return $user->is($queue?->user);
-});
-
 Broadcast::channel('queue-channel.leave-{queueId}', function (User $user, int $queueId) {
     $queue = MatchmakingQueue::find($queueId);
     return $user->is($queue?->user);
