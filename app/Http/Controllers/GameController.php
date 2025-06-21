@@ -52,7 +52,10 @@ class GameController extends Controller
     {
         $game = Game::find($request->input('game_id'));
         if ($request->user()->id !== $game->next()['player']->user->id)
-            return response()->json(['message' => "{$request->user()->name} can't place a coin, it's not his turn (game: $game->id)."]);
+            return response()->json([
+                'message' => "{$request->user()->name} can't place a coin, it's not his turn (game: $game->id).",
+                'success' => false,
+            ]);
 
         GameMove::create([
             'game_id' => $game->id,
@@ -62,7 +65,10 @@ class GameController extends Controller
         ]);
         GameUpdatedEvent::dispatch($game);
 
-        return response()->json(['message' => "{$request->user()->name} place a coin in column {$request->input('column')} (game: $game->id)."]);
+        return response()->json([
+            'message' => "{$request->user()->name} place a coin in column {$request->input('column')} (game: $game->id).",
+            'success' => true,
+        ]);
     }
 
 

@@ -18,8 +18,6 @@
             <div class="grid" id="game-grid"></div>
         </div>
 
-        <div class="message" id="game-message"></div>
-
         <div class="controls">
             <button id="btn-leave-game" class="btn btn-primary d-none">Quitter la partie</button>
         </div>
