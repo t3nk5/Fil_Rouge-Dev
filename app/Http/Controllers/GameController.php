@@ -47,7 +47,8 @@ class GameController extends Controller
 
         GameUpdateEvent::dispatch($game);
 
-        return response()->json(['message' => "{$request->user()->name} request game ($game->id) infos update."]);
+        $username = $request->user()?->name ?? 'guest';
+        return response()->json(['message' => "$username request game ($game->id) infos update."]);
     }
 
     public function place(Request $request): JsonResponse
@@ -71,11 +72,5 @@ class GameController extends Controller
             'message' => "{$request->user()->name} place a coin in column {$request->input('column')} (game: $game->id).",
             'success' => true,
         ]);
-    }
-
-
-    public function template(): RedirectResponse
-    {
-        return redirect()->route('index');
     }
 }

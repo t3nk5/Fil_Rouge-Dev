@@ -106,10 +106,11 @@ const gameBoard = {
         crown.appendChild(icon);
         document.getElementById(`player-${winner.player_index}`).appendChild(crown);
 
+        gameLeaveBtn.classList.remove('d-none');
     },
 }
 
-window.Echo.private(window.appConfig.ws.channels.game.update + gameId)
+window.Echo.channel(window.appConfig.ws.channels.game.update + gameId)
     .listen(window.appConfig.ws.alias.game.update, (response) => {
         gameActive = response.game.status === -1;
         currentPlayer = response.next.player.player_index
@@ -151,23 +152,19 @@ function dropPiece(col) {
     if (!gameActive) return;
     if (gameBoard.getRow(col) === -1) return;
 
+    setActiveButtons(false);
     axios.post(window.appConfig.routes.game.place, {
         'game_id': gameId,
         'column': col,
     }).then(response => {
         console.log(response.data);
         if (response.data.success) showMessage('')
-    })
+    }).catch(error => console.log(error.response.data));
 }
 
 function setActiveButtons(active) {
     const columnBtns = document.querySelectorAll('.cell');
     columnBtns.forEach(btn => btn.disabled = !active);
-
-    if (active)
-        gameLeaveBtn.classList.add('d-none');
-    else
-        gameLeaveBtn.classList.remove('d-none');
 }
 
 function highlightWinningCells(row, col, dx, dy) {

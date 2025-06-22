@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\InGame;
 use App\Http\Middleware\InQueue;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth' => Authenticate::class,
             'in-queue' => InQueue::class,
+            'in-game' => InGame::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

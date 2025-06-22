@@ -22,6 +22,5 @@ class InQueue
                 ->with('error', "$user->name must be in queue to access this page.");
 
         return $next($request);
-
     }
 }

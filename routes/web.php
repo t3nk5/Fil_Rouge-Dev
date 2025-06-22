@@ -17,14 +17,14 @@ Route::prefix('/queue')->name('queue.')->controller(QueueController::class)->gro
 
 Route::prefix('/game')->name('game.')->controller(GameController::class)->group(function () {
     Route::get('/{id}', 'index')->name('index')->where('id', '[0-9a-fA-F\-]{36}');
-    Route::post('/place', 'place')->name('place')/*->middleware('in-game')*/;
-    Route::post('/pre/update', 'preUpdate')->name('pre-update')->middleware('auth');
-    Route::post('/update', 'update')->name('update')->middleware('auth');
-    Route::get('/', 'template')->name('index.template');
+    Route::post('/place', 'place')->name('place')->middleware('in-game');
+    Route::post('/pre/update', 'preUpdate')->name('pre-update')->middleware(['auth', 'in-queue']);
+    Route::post('/update', 'update')->name('update');
+    Route::get('/', fn () => redirect()->route('index'))->name('index.template');
 });
 
 Route::prefix('/auth')->name('auth.')->controller(AuthController::class)->group(function () {
-    Route::get('/login', 'loginPage')->name('login')->middleware('guest');
+    Route::view('/login', 'auth.login')->name('login')->middleware('guest');
     Route::post('/login', 'login')->name('login')->middleware('guest');
     Route::delete('/logout', 'logout')->name('logout')->middleware('auth');
 });

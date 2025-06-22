@@ -14,11 +14,6 @@ Broadcast::channel('queue-channel.leave-{queueId}', function (User $user, int $q
     return $user->is($queue?->user);
 });
 
-Broadcast::channel('queue-channel.leave-{queueId}', function (User $user, int $queueId) {
-    $queue = MatchmakingQueue::find($queueId);
-    return $user->is($queue?->user);
-});
-
 Broadcast::channel('game-channel.pre-update-{gameId}', function (User $user, string $gameId) {
     return GamePlayer::where('game_id', $gameId)
         ->where('user_id', $user->id)
@@ -29,8 +24,4 @@ Broadcast::channel('game-channel.start-{gameId}', function (User $user, string $
     return GamePlayer::where('game_id', $gameId)
         ->where('user_id', $user->id)
         ->exists();
-});
-
-Broadcast::channel('game-channel.update-{gameId}', function (User $user, string $gameId) {
-    return true;
 });
