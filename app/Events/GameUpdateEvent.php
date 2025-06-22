@@ -3,13 +3,14 @@
 namespace App\Events;
 
 use App\Models\Game;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\InteractsWithSockets;
 
-class GameUpdatedEvent implements ShouldBroadcast
+class GameUpdateEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -23,10 +24,10 @@ class GameUpdatedEvent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('game-channel.update-' . $this->game->id);
+        return new Channel('game-channel.update-' . $this->game->id);
     }
 
-    public function broadcastAs()
+    public function broadcastAs(): string
     {
         return 'game-update';
     }

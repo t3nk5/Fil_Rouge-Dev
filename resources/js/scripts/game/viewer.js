@@ -1,4 +1,4 @@
-﻿import '../app.js';
+﻿import '../../app.js';
 
 let gameActive = false;
 let currentPlayer;
@@ -8,6 +8,8 @@ const grid = document.getElementById('game-grid');
 const player1Element = document.getElementById('player-1');
 const player2Element = document.getElementById('player-2');
 const gameLeaveBtn = document.getElementById('btn-leave-game')
+const status = document.getElementById('game-status');
+
 const gameBoard = {
     grid: Array(6).fill().map(() => Array(7).fill(0)),
 
@@ -18,9 +20,6 @@ const gameBoard = {
             for (const [col, c] of r.entries()) {
                 const cell = document.createElement('button');
                 cell.className = 'cell';
-                cell.onclick = () => {
-                    dropPiece(col);
-                };
                 cell.dataset.row = row;
                 cell.dataset.col = col;
                 cell.disabled = true
@@ -91,13 +90,27 @@ const gameBoard = {
     isBoardFull() {
         return this.grid[0].every(cell => cell !== 0);
     },
-    endGame(message) {
-        showMessage(message, 'success');
+    endGame(winner) {
         setActiveButtons(false);
+        updateGameStatus({ index: -1,});
+        showMessage(`${winner.user.name} à gagné !`, 'success');
+
+        if (!document.querySelector('.winner-crown')) {
+            const crown = document.createElement('span');
+            crown.className = 'winner-crown';
+
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-crown';
+
+            crown.appendChild(icon);
+            document.getElementById(`player-${winner.player_index}`).appendChild(crown);
+        }
+
+        gameLeaveBtn.classList.remove('d-none');
     },
 }
 
-window.Echo.private(window.appConfig.ws.channels.game.update + gameId)
+window.Echo.channel(window.appConfig.ws.channels.game.update + gameId)
     .listen(window.appConfig.ws.alias.game.update, (response) => {
         gameActive = response.game.status === -1;
         currentPlayer = response.next.player.player_index
@@ -110,21 +123,13 @@ window.Echo.private(window.appConfig.ws.channels.game.update + gameId)
             gameBoard.place({col: move.column, player_index: move.player_index});
 
         if (gameActive) {
-            if (gameBoard.checkWin() !== -1) {
-                axios.post(window.appConfig.routes.game.update, {
-                    'game_id': gameId,
-                    'status': gameBoard.checkWin(),
-                }).then(response => console.log(response.data));
-            } else {
-                setActiveButtons(true);
-                updateGameStatus({
-                    name: response.game.players[currentPlayer - 1].user.name,
-                    index: currentPlayer,
-                })
-            }
+            updateGameStatus({
+                name: response.game.players[currentPlayer - 1].user.name,
+                index: currentPlayer,
+            })
         } else {
-            gameBoard.endGame(`${response.game.players[response.game.status - 1].user.name} à gagné !`);
-
+            const winner = response.game.players[response.game.status - 1]
+            gameBoard.endGame(winner);
         }
     });
 
@@ -134,26 +139,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     gameBoard.init();
 });
-
-function dropPiece(col) {
-    if (!gameActive) return;
-    if (gameBoard.getRow(col) === -1) return;
-
-    axios.post(window.appConfig.routes.game.place, {
-        'game_id': gameId,
-        'column': col,
-    }).then(response => console.log(response))
-}
-
-function setActiveButtons(active) {
-    const columnBtns = document.querySelectorAll('.cell');
-    columnBtns.forEach(btn => btn.disabled = !active);
-
-    if (active)
-        gameLeaveBtn.classList.add('d-none');
-    else
-        gameLeaveBtn.classList.remove('d-none');
-}
 
 function highlightWinningCells(row, col, dx, dy) {
     const winningCells = [{row, col}];
@@ -186,18 +171,16 @@ function highlightWinningCells(row, col, dx, dy) {
 }
 
 function showMessage(text, type) {
-    const messageElement = document.getElementById('game-message');
-    messageElement.textContent = text;
-    messageElement.className = `message ${type}`;
-    messageElement.style.display = 'block';
+    status.textContent = text;
+    status.className = `game-status ${type}`;
+
 }
 
 function updateGameStatus({name, index}) {
-    const status = document.getElementById('game-status');
     const player1Indicator = player1Element.querySelector('.player-indicator');
     const player2Indicator = player2Element.querySelector('.player-indicator');
 
-    status.textContent = `Au tour de ${name}`;
+    showMessage(`Au tour de ${name}`)
 
     player1Indicator.classList.remove('active');
     player2Indicator.classList.remove('active');

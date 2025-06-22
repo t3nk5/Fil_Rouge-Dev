@@ -11,11 +11,6 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function loginPage(): View
-    {
-        return view('auth.login');
-    }
-
     public function login(LoginRequest $request): RedirectResponse
     {
         $credentials = $request->validated();

@@ -16,14 +16,7 @@ const cancelBtn = document.getElementById("btn-cancel");
 window.Echo.private(window.appConfig.ws.channels.queue.leave + selfQueueId)
     .listen(window.appConfig.ws.alias.queue.leave, (response) => {
         console.log(response);
-
-        axios.post(window.appConfig.routes.game.pre_update, {'game_id': gameId})
-            .then(r => {
-                console.log(r.data)
-
-                window.location.href = window.appConfig.routes.index;
-            });
-
+        window.location.href = window.appConfig.routes.index;
     });
 
 window.Echo.private(window.appConfig.ws.channels.game.pre_update + gameId)
@@ -153,9 +146,7 @@ notReadyBtn.addEventListener('click', function () {
 cancelBtn.addEventListener('click', function () {
     axios.post(window.appConfig.routes.queue.leave, {
         'queue_id': selfQueueId,
-    }).then(response => {
-        console.log(response.data.message);
-    });
+    }).then(response => console.log(response.data));
 })
 
 function showMessage(text, type = "info") {

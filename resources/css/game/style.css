@@ -41,6 +41,15 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex: 1;
+}
+
+.player-info#player-1 {
+    flex-direction: row;
+}
+
+.player-info#player-2 {
+    flex-direction: row-reverse;
 }
 
 .player-indicator {
@@ -68,6 +77,14 @@ body {
     font-size: 1.1rem;
     font-weight: 500;
     color: #2c3e50;
+}
+
+.game-status.success {
+    color: #27ae60;
+}
+
+.game-status.info {
+    color: #3498db;
 }
 
 .game-board {
@@ -197,24 +214,9 @@ body {
     background: #7f8c8d;
 }
 
-.message {
-    margin-top: 1rem;
-    padding: 1rem;
-    border-radius: 6px;
-    font-weight: 500;
-    display: none;
-}
-
-.message.success {
-    background: #d5f4e6;
-    color: #27ae60;
-    border: 1px solid #27ae60;
-}
-
-.message.info {
-    background: #d6eaf8;
-    color: #3498db;
-    border: 1px solid #3498db;
+.winner-crown {
+    color: gold;
+    font-size: 1.2rem;
 }
 
 .d-none {

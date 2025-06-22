@@ -91,6 +91,11 @@ class Game extends Model
             && $this->players->every(fn($player) => $player->matchmakingQueue->status === Matchmaking::Ready);
     }
 
+    public function hasStarted(): bool
+    {
+        return $this->status == GameStatus::InProgress;
+    }
+
     public function isEnded(): bool
     {
         return $this->status === GameStatus::Draw || $this->status === GameStatus::Player1_Win || $this->status === GameStatus::Player2_Win;

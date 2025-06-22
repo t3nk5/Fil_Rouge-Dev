@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Events\PreGameUpdateEvent;
-use App\Events\QueueRequestEvent;
 use App\Events\QueueJoinEvent;
 use App\Events\QueueLeaveEvent;
 use App\Models\MatchmakingQueue;
@@ -15,14 +14,7 @@ class QueueController extends Controller
 {
     public function index(): View
     {
-        return view('queue.index', [
-            'opponent' => (object)[
-                'username' => 'Adversaire87',
-                'gamesPlayed' => 32,
-                'gamesWon' => 22,
-                'winRate' => 69
-            ],
-        ]);
+        return view('queue.index');
     }
 
     public function join(Request $request): JsonResponse
@@ -35,20 +27,13 @@ class QueueController extends Controller
         return response()->json(['message' => "$user->name joining queue."]);
     }
 
-    public function request(Request $request): JsonResponse
-    {
-        $user = $request->user();
-
-        QueueRequestEvent::dispatch($user);
-
-        return response()->json(['message' => "$user->name request for his queue object."]);
-    }
-
     public function leave(Request $request): JsonResponse
     {
         $queueId = $request->input('queue_id');
+        $game = MatchmakingQueue::find($queueId)->gamePlayer->game;
 
         QueueLeaveEvent::dispatch(MatchmakingQueue::find($queueId));
+        PreGameUpdateEvent::dispatch($game);
 
         return response()->json(['message' => "{$request->user()->name} leaving queue."]);
     }
