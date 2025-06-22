@@ -1,6 +1,6 @@
 import '../app.js';
 
-const userId = document.getElementById('username').dataset.userId;
+const userId = document.getElementById('username')?.dataset.userId;
 
 function playGame() {
     const playBtn = document.getElementById('play-btn');

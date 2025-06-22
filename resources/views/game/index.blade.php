@@ -1,3 +1,4 @@
+@php use App\Models\Game; @endphp
 <x-layout title="Jeu - Puissance 4" :css="asset('css/game/style.css')">
     <x-header/>
 
@@ -27,5 +28,9 @@
     <x-footer/>
 
     <x-variables/>
-    @vite('resources/js/scripts/game.js')
+    @if(Game::find($game_id)->players->contains(fn($player) => $player->user->is(Auth::user())))
+        @vite('resources/js/scripts/game/player.js')
+    @else
+        @vite('resources/js/scripts/game/viewer.js')
+    @endif
 </x-layout>

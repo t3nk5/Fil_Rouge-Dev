@@ -1,4 +1,4 @@
-﻿import '../app.js';
+﻿import '../../app.js';
 
 let gameActive = false;
 let currentPlayer;
@@ -20,9 +20,6 @@ const gameBoard = {
             for (const [col, c] of r.entries()) {
                 const cell = document.createElement('button');
                 cell.className = 'cell';
-                cell.onclick = () => {
-                    dropPiece(col);
-                };
                 cell.dataset.row = row;
                 cell.dataset.col = col;
                 cell.disabled = true
@@ -95,16 +92,19 @@ const gameBoard = {
     },
     endGame(winner) {
         setActiveButtons(false);
+        updateGameStatus({ index: -1,});
         showMessage(`${winner.user.name} à gagné !`, 'success');
 
-        const crown = document.createElement('span');
-        crown.className = 'winner-crown';
+        if (!document.querySelector('.winner-crown')) {
+            const crown = document.createElement('span');
+            crown.className = 'winner-crown';
 
-        const icon = document.createElement('i');
-        icon.className = 'fas fa-crown';
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-crown';
 
-        crown.appendChild(icon);
-        document.getElementById(`player-${winner.player_index}`).appendChild(crown);
+            crown.appendChild(icon);
+            document.getElementById(`player-${winner.player_index}`).appendChild(crown);
+        }
 
         gameLeaveBtn.classList.remove('d-none');
     },
@@ -123,18 +123,10 @@ window.Echo.channel(window.appConfig.ws.channels.game.update + gameId)
             gameBoard.place({col: move.column, player_index: move.player_index});
 
         if (gameActive) {
-            if (gameBoard.checkWin() !== -1) {
-                axios.post(window.appConfig.routes.game.update, {
-                    'game_id': gameId,
-                    'status': gameBoard.checkWin(),
-                }).then(response => console.log(response.data));
-            } else {
-                setActiveButtons(true);
-                updateGameStatus({
-                    name: response.game.players[currentPlayer - 1].user.name,
-                    index: currentPlayer,
-                })
-            }
+            updateGameStatus({
+                name: response.game.players[currentPlayer - 1].user.name,
+                index: currentPlayer,
+            })
         } else {
             const winner = response.game.players[response.game.status - 1]
             gameBoard.endGame(winner);
@@ -147,25 +139,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     gameBoard.init();
 });
-
-function dropPiece(col) {
-    if (!gameActive) return;
-    if (gameBoard.getRow(col) === -1) return;
-
-    setActiveButtons(false);
-    axios.post(window.appConfig.routes.game.place, {
-        'game_id': gameId,
-        'column': col,
-    }).then(response => {
-        console.log(response.data);
-        if (response.data.success) showMessage('')
-    }).catch(error => console.log(error.response.data));
-}
-
-function setActiveButtons(active) {
-    const columnBtns = document.querySelectorAll('.cell');
-    columnBtns.forEach(btn => btn.disabled = !active);
-}
 
 function highlightWinningCells(row, col, dx, dy) {
     const winningCells = [{row, col}];
