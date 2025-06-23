@@ -1,8 +1,8 @@
 <footer class="footer">
     <p>
-        &copy; 2024 Puissance 4.
-        <a href="/about">À propos</a>
-        <a href="/help">Aide</a>
-        <a href="/privacy">Confidentialité</a>
+        &copy; Puissance 4 - Projet Dev Ynov 2024-2025
+        <a href="https://github.com/t3nk5/Fil_Rouge-Dev" target="_blank" rel="noopener" style="color: black">
+            <i class="fab fa-github"></i> GitHub
+        </a>
     </p>
 </footer>
