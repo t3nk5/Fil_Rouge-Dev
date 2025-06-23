@@ -25,3 +25,7 @@ Broadcast::channel('game-channel.start-{gameId}', function (User $user, string $
         ->where('user_id', $user->id)
         ->exists();
 });
+
+Broadcast::channel('stats-channel.queue', function (User $user) {
+    return $user->queue()->exists();
+});

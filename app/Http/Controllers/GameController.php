@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\GameStartEvent;
 use App\Events\GameUpdateEvent;
 use App\Events\PreGameUpdateEvent;
+use App\Events\QueueStatsEvent;
 use App\Models\Game;
 use App\Models\GameMove;
 use Illuminate\Http\JsonResponse;
@@ -28,8 +29,10 @@ class GameController extends Controller
 
         PreGameUpdateEvent::dispatch($game, $update);
 
-        if ($game->canStart())
+        if ($game->canStart()) {
             GameStartEvent::dispatch($game);
+            QueueStatsEvent::dispatch();
+        }
 
         return response()->json(['message' => "{$request->user()->name} request pre game ($game->id) infos update."]);
     }
@@ -41,9 +44,11 @@ class GameController extends Controller
         if ($request->input('status'))
             $game->update(['status' => $request->input('status')]);
 
-        if ($game->isEnded())
+        if ($game->isEnded()) {
             foreach ($game->players as $player)
                 $player->matchmakingQueue?->delete();
+            QueueStatsEvent::dispatch();
+        }
 
         GameUpdateEvent::dispatch($game);
 

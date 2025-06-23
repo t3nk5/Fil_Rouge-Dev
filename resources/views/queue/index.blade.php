@@ -1,10 +1,4 @@
-@php
-    use App\Models\Game;
-    use App\Enums\GameStatus;
-
-    $active_games = function () { return Game::where('status', GameStatus::InProgress)->count(); }
-@endphp
-
+@php use App\Models\Game; use App\Enums\GameStatus; @endphp
 <x-layout title="Accueil - Puissance 4" :css="asset('css/queue/style.css')">
     <x-header/>
 
@@ -28,7 +22,8 @@
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Parties actives</div>
-                        <div class="detail-value" id="active-games">{{ $active_games() }}</div>
+                        <div class="detail-value"
+                             id="active-games">{{ Game::where('status', GameStatus::InProgress)->count() }}</div>
                     </div>
                 </div>
             </div>
