@@ -46,14 +46,15 @@ document.addEventListener('keydown', (e) => {
 
 document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
-        animateCounter('games-played', 15); // set data
-        animateCounter('games-won', 9); // set data
-        animateCounter('win-rate', 60, '%'); // set data
+        animateCounter({elementId: 'games-played'});
+        animateCounter({elementId: 'games-won'});
+        animateCounter({elementId: 'win-rate', suffix: '%'})
     }, 500);
 });
 
-function animateCounter(elementId, targetValue, suffix = '') {
+function animateCounter({elementId, targetValue, suffix = ''}) {
     const element = document.getElementById(elementId);
+    targetValue = targetValue ?? element.dataset.value;
     let currentValue = 0;
     const increment = targetValue / 30;
 
@@ -63,6 +64,6 @@ function animateCounter(elementId, targetValue, suffix = '') {
             currentValue = targetValue;
             clearInterval(timer);
         }
-        element.textContent = Math.floor(currentValue) + suffix;
+        element.textContent = Math.round(currentValue) + suffix;
     }, 50);
 }

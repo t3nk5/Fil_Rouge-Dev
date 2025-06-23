@@ -17,20 +17,23 @@
             </button>
         </div>
 
-        <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-number" id="games-played">0</div>
-                <div class="stat-label">Parties jouées</div>
+        @auth()
+            @php $stats = Auth::user()->stats(); @endphp
+            <div class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-number" id="games-played" data-value="{{ $stats['played'] }}">0</div>
+                    <div class="stat-label">Parties jouées</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="games-won" data-value="{{ $stats['wins'] }}">0</div>
+                    <div class="stat-label">Victoires</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="win-rate" data-value="{{ $stats['win_rate'] }}">0%</div>
+                    <div class="stat-label">Taux de victoire</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="games-won">0</div>
-                <div class="stat-label">Victoires</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="win-rate">0%</div>
-                <div class="stat-label">Taux de victoire</div>
-            </div>
-        </div>
+        @endauth
 
         <!-- Actions rapides -->
         <!-- <div class="quick-actions">
