@@ -98,7 +98,14 @@ class Game extends Model
 
     public function isEnded(): bool
     {
-        return $this->status === GameStatus::Draw || $this->status === GameStatus::Player1_Win || $this->status === GameStatus::Player2_Win;
+        return $this->status->value >= GameStatus::Draw->value;
+    }
+
+    public function winner(): ?GamePlayer
+    {
+        if (!$this->isEnded()) return null;
+
+        return $this->players->firstWhere('player_index', $this->status->value);
     }
 
     public function getNewPlayerIndex(): ?PlayerIndex

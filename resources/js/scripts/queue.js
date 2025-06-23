@@ -162,16 +162,11 @@ function showMessage(text, type = "info") {
     }, 5000);
 }
 
+window.Echo.private(window.appConfig.ws.channels.stats.queue)
+    .listen(window.appConfig.ws.alias.stats.queue, (response) => {
+        document.getElementById('active-games').innerText = response.data.current_games;
+    });
 
-//
-
-function loadOnlineStats() {
-    setInterval(() => {
-        // document.getElementById('active-games').textContent = {{ $active_games()  }};
-    }, 5000);
-}
-
-// Nettoyage avant fermeture de la page
 window.addEventListener('beforeunload', function () {
     clearInterval(waitingTimer);
     clearTimeout(messageTimeout);

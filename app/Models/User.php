@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\GameStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -59,5 +60,19 @@ class User extends Authenticatable
             'id',
             'game_id'
         );
+    }
+
+    public function stats(): array
+    {
+        $games = $this->games()
+            ->where('status', '>', GameStatus::InProgress)
+            ->with('players')
+            ->get();
+
+        return [
+            'played' => $played = $games->count(),
+            'wins' => $wins = $games->filter(fn($game) => $this->is($game->winner()?->user))->count(),
+            'win_rate' => $played > 0 ? round(($wins / $played) * 100, 2) : 0,
+        ];
     }
 }

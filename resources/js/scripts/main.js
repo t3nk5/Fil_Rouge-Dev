@@ -21,11 +21,13 @@ function playGame() {
 
             playBtn.classList.remove('loading');
             playIcon.textContent = '▶';
+
+            if (error.response?.status === 401) window.location.href = window.appConfig.routes.login;
         });
 }
 
 window.Echo.private(window.appConfig.ws.channels.queue.join + userId)
-    .listen(window.appConfig.ws.alias.queue.join, (response) => {
+    .listen(window.appConfig.ws.alias.queue.join, () => {
         const playBtn = document.getElementById('play-btn');
         const playIcon = playBtn.querySelector('.play-icon');
 
@@ -46,14 +48,15 @@ document.addEventListener('keydown', (e) => {
 
 document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
-        animateCounter('games-played', 15); // set data
-        animateCounter('games-won', 9); // set data
-        animateCounter('win-rate', 60, '%'); // set data
+        animateCounter({elementId: 'games-played'});
+        animateCounter({elementId: 'games-won'});
+        animateCounter({elementId: 'win-rate', suffix: '%'})
     }, 500);
 });
 
-function animateCounter(elementId, targetValue, suffix = '') {
+function animateCounter({elementId, targetValue, suffix = ''}) {
     const element = document.getElementById(elementId);
+    targetValue = targetValue ?? element.dataset.value;
     let currentValue = 0;
     const increment = targetValue / 30;
 
@@ -63,6 +66,6 @@ function animateCounter(elementId, targetValue, suffix = '') {
             currentValue = targetValue;
             clearInterval(timer);
         }
-        element.textContent = Math.floor(currentValue) + suffix;
+        element.textContent = Math.round(currentValue) + suffix;
     }, 50);
 }
