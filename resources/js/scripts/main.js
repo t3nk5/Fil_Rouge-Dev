@@ -21,11 +21,13 @@ function playGame() {
 
             playBtn.classList.remove('loading');
             playIcon.textContent = '▶';
+
+            if (error.response?.status === 401) window.location.href = window.appConfig.routes.login;
         });
 }
 
 window.Echo.private(window.appConfig.ws.channels.queue.join + userId)
-    .listen(window.appConfig.ws.alias.queue.join, (response) => {
+    .listen(window.appConfig.ws.alias.queue.join, () => {
         const playBtn = document.getElementById('play-btn');
         const playIcon = playBtn.querySelector('.play-icon');
 

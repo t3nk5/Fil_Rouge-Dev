@@ -2,6 +2,7 @@
     window.appConfig = {
         routes: {
             index: '{{ route('index') }}',
+            login: '{{ route('auth.login') }}',
             queue: {
                 index: '{{ route('queue.index') }}',
                 join: '{{ route('queue.join') }}',
